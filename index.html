@@ -2,59 +2,473 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      <meta name="theme-color" content="#1f3a2b">
-        <meta name="mobile-web-app-capable" content="yes">
-          <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1f3a2b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
-            <title>Ghea Companion</title>
+  <title>Ghea Companion</title>
 
-              <link rel="manifest" href="./manifest.json">
-                <link rel="icon" href="./icon-192.png">
-                  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
 
-                    <style>
-                        * {
-                              box-sizing: border-box;
-                                  }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-                                      body {
-                                            margin: 0;
-                                                  background: #0d1711;
-                                                        color: #f3f3f3;
-                                                              font-family: Arial, sans-serif;
-                                                                  }
+    body {
+      margin: 0;
+      background: #0d1711;
+      color: #f3f3f3;
+      font-family: Arial, sans-serif;
+    }
 
-                                                                      header {
-                                                                            position: sticky;
-                                                                                  top: 0;
-                                                                                        z-index: 10;
-                                                                                              background: #14251b;
-                                                                                                    padding: 16px;
-                                                                                                          text-align: center;
-                                                                                                                border-bottom: 1px solid #31503c;
-                                                                                                                    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #14251b;
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #31503c;
+    }
 
-                                                                                                                        header h1 {
-                                                                                                                              margin: 0;
-                                                                                                                                    font-size: 24px;
-                                                                                                                                          letter-spacing: 2px;
-                                                                                                                                              }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 2px;
+    }
 
-                                                                                                                                                  header p {
-                                                                                                                                                        margin: 5px 0 0;
-                                                                                                                                                              color: #b7c7bc;
-                                                                                                                                                                    font-size: 13px;
-                                                                                                                                                                        }
+    header p {
+      margin: 5px 0 0;
+      color: #b7c7bc;
+      font-size: 13px;
+    }
 
-                                                                                                                                                                            main {
-                                                                                                                                                                                  max-width: 650px;
-                                                                                                                                                                                        margin: auto;
-                                                                                                                                                                                              padding: 14px;
-                                                                                                                                                                                                  }
+    main {
+      max-width: 650px;
+      margin: auto;
+      padding: 14px;
+    }
 
-                                                                                                                                                                                                      .combatant {
-                                                                                                                                                                                                            background: #17271d;
-                                                                                                                                                                                                                  border: 1px solid #31503c;
-                                                                                                                                                                                                                        border-radius: 15
+    .combatant {
+      background: #17271d;
+      border: 1px solid #31503c;
+      border-radius: 15px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .name {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #4f6c59;
+      color: white;
+      font-size: 19px;
+      font-weight: bold;
+      width: 75%;
+      padding: 5px;
+    }
+
+    .delete {
+      border: none;
+      background: #492222;
+      color: #ffdada;
+      border-radius: 8px;
+      min-width: 42px;
+      height: 42px;
+      font-size: 18px;
+    }
+
+    .main-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      background: #203528;
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .stat-title {
+      font-size: 13px;
+      color: #c6d2ca;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    .counter button {
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 9px;
+      background: #355843;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .value {
+      min-width: 35px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .states-title {
+      margin-top: 14px;
+      margin-bottom: 7px;
+      color: #aab9af;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .states {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .state {
+      border: 1px solid #2c4334;
+      border-radius: 10px;
+      padding: 7px 3px;
+      text-align: center;
+      opacity: 0.45;
+      transition: 0.2s;
+    }
+
+    .state.active {
+      opacity: 1;
+      background: #203528;
+      border-color: #547561;
+    }
+
+    .state-name {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
+
+    .state-counter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .state-counter button {
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 7px;
+      background: #304d3a;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .state-value {
+      min-width: 22px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .add,
+    .reset {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .add {
+      background: #315b40;
+    }
+
+    .reset {
+      background: #4a2929;
+      margin-top: 12px;
+      margin-bottom: 25px;
+    }
+
+    @media (max-width: 360px) {
+      main {
+        padding: 9px;
+      }
+
+      .combatant {
+        padding: 10px;
+      }
+
+      .counter button {
+        width: 36px;
+        height: 40px;
+      }
+
+      .value {
+        font-size: 21px;
+        min-width: 27px;
+      }
+
+      .state-name {
+        font-size: 10px;
+      }
+
+      .state-counter button {
+        width: 27px;
+        height: 29px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>GHEA</h1>
+  <p>Contador de combate</p>
+</header>
+
+<main>
+  <div id="combatants"></div>
+
+  <button class="add" id="addBtn">
+    + Agregar personaje / enemigo
+  </button>
+
+  <button class="reset" id="resetBtn">
+    Reiniciar contadores
+  </button>
+</main>
+<script>
+  const STORAGE_KEY = "ghea-state-v2";
+
+  const defaultState = [
+    {
+      name: "Guerrero",
+      vida: 10,
+      escudo: 0,
+      quemadura: 0,
+      veneno: 0,
+      herida: 0
+    },
+    {
+      name: "Enemigo A",
+      vida: 10,
+      escudo: 0,
+      quemadura: 0,
+      veneno: 0,
+      herida: 0
+    }
+  ];
+
+  let combatants;
+
+  try {
+    combatants = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+    if (!Array.isArray(combatants)) {
+      combatants = structuredClone(defaultState);
+    }
+  } catch {
+    combatants = structuredClone(defaultState);
+  }
+
+  const container = document.getElementById("combatants");
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(combatants));
+  }
+
+  function change(index, stat, amount) {
+    combatants[index][stat] = Math.max(
+      0,
+      Number(combatants[index][stat] || 0) + amount
+    );
+
+    save();
+    render();
+  }
+
+  function updateName(index, value) {
+    combatants[index].name = value;
+    save();
+  }
+
+  function removeCombatant(index) {
+    combatants.splice(index, 1);
+    save();
+    render();
+  }
+  function createState(index, stat, icon, label) {
+    const value = combatants[index][stat];
+    const active = value > 0 ? "active" : "";
+
+    return `
+      <div class="state ${active}">
+        <div class="state-name">${icon} ${label}</div>
+
+        <div class="state-counter">
+          <button data-action="minus" data-index="${index}" data-stat="${stat}">−</button>
+
+          <span class="state-value">${value}</span>
+
+          <button data-action="plus" data-index="${index}" data-stat="${stat}">+</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    container.innerHTML = "";
+
+    combatants.forEach((c, index) => {
+      const card = document.createElement("div");
+      card.className = "combatant";
+
+      card.innerHTML = `
+        <div class="top">
+          <input
+            class="name"
+            type="text"
+            value="${c.name}"
+            data-name-index="${index}"
+            aria-label="Nombre del combatiente"
+          >
+
+          <button
+            class="delete"
+            data-delete-index="${index}"
+            aria-label="Eliminar combatiente"
+          >
+            🗑️
+          </button>
+        </div>
+
+        <div class="main-stats">
+          <div class="stat">
+                        <div class="stat-title">❤️ VIDA</div>
+
+                                    <div class="counter">
+                                                  <button data-action="minus" data-index="${index}" data-stat="vida">−</button>
+
+                                                                <span class="value">${c.vida}</span>
+
+                                                                              <button data-action="plus" data-index="${index}" data-stat="vida">+</button>
+                                                                                          </div>
+                                                                                                    </div>
+
+                                                                                                              <div class="stat">
+                                                                                                                          <div class="stat-title">🛡️ ESCUDO</div>
+
+                                                                                                                                      <div class="counter">
+                                                                                                                                                    <button data-action="minus" data-index="${index}" data-stat="escudo">−</button>
+
+                                                                                                                                                                  <span class="value">${c.escudo}</span>
+
+                                                                                                                                                                                <button data-action="plus" data-index="${index}" data-stat="escudo">+</button>
+                                                                                                                                                                                            </div>
+                                                                                                                                                                                                      </div>
+
+                                                                                                                                                                                                              </div>
+
+                                                                                                                                                                                                                      <div class="states-title">ESTADOS</div>
+
+                                                                                                                                                                                                                              <div class="states">
+                                                                                                                                                                                                                                        ${createState(index, "quemadura", "🔥", "Quemadura")}
+                                                                                                                                                                                                                                                  ${createState(index, "veneno", "☠️", "Veneno")}
+                                                                                                                                                                                                                                                            ${createState(index, "herida", "🩸", "Herida")}
+                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                          `;
+
+                                                                                                                                                                                                                                                                                container.appendChild(card);
+                                                                                                                                                                                                                                                                                    });
+
+                                                                                                                                                                                                                                                                                        bindEvents();
+                                                                                                                                                                                                                                                                                          }
+                                                                                                                                                                                                                                                                                            function bindEvents() {
+
+                                                                                                                                                                                                                                                                                                    document.querySelectorAll("[data-action]").forEach(button => {
+                                                                                                                                                                                                                                                                                                          button.addEventListener("click", () => {
+                                                                                                                                                                                                                                                                                                                  const index = Number(button.dataset.index);
+                                                                                                                                                                                                                                                                                                                          const stat = button.dataset.stat;
+                                                                                                                                                                                                                                                                                                                                  const amount = button.dataset.action === "plus" ? 1 : -1;
+
+                                                                                                                                                                                                                                                                                                                                          change(index, stat, amount);
+                                                                                                                                                                                                                                                                                                                                                });
+                                                                                                                                                                                                                                                                                                                                                    });
+
+                                                                                                                                                                                                                                                                                                                                                        document.querySelectorAll("[data-name-index]").forEach(input => {
+                                                                                                                                                                                                                                                                                                                                                              input.addEventListener("input", () => {
+                                                                                                                                                                                                                                                                                                                                                                      updateName(Number(input.dataset.nameIndex), input.value);
+                                                                                                                                                                                                                                                                                                                                                                            });
+                                                                                                                                                                                                                                                                                                                                                                                });
+
+                                                                                                                                                                                                                                                                                                                                                                                    document.querySelectorAll("[data-delete-index]").forEach(button => {
+                                                                                                                                                                                                                                                                                                                                                                                          button.addEventListener("click", () => {
+                                                                                                                                                                                                                                                                                                                                                                                                  removeCombatant(Number(button.dataset.deleteIndex));
+                                                                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                                                                            });
+                                                                                                                                                                                                                                                                                                                                                                                                              }
+
+                                                                                                                                                                                                                                                                                            }  document.getElementById("addBtn").addEventListener("click", () => {
+                                                                                                                                                                                                                                                                                                combatants.push({
+                                                                                                                                                                                                                                                                                                      name: "Nuevo",
+                                                                                                                                                                                                                                                                                                            vida: 10,
+                                                                                                                                                                                                                                                                                                                  escudo: 0,
+                                                                                                                                                                                                                                                                                                                        quemadura: 0,
+                                                                                                                                                                                                                                                                                                                              veneno: 0,
+                                                                                                                                                                                                                                                                                                                                    herida: 0
+                                                                                                                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                                                                                                            save();
+                                                                                                                                                                                                                                                                                                                                                render();
+                                                                                                                                                                                                                                                                                                                                                  });
+
+                                                                                                                                                                                                                                                                                                                                                    document.getElementById("resetBtn").addEventListener("click", () => {
+                                                                                                                                                                                                                                                                                                                                                        combatants = structuredClone(defaultState);
+                                                                                                                                                                                                                                                                                                                                                            save();
+                                                                                                                                                                                                                                                                                                                                                                render();
+                                                                                                                                                                                                                                                                                                                                                                  });
+
+                                                                                                                                                                                                                                                                                                                                                                    render();
+                                                                                                                                                                                                                                                                                                                                                                      if ("serviceWorker" in navigator) {
+                                                                                                                                                                                                                                                                                                                                                                            window.addEventListener("load", () => {
+                                                                                                                                                                                                                                                                                                                                                                                  navigator.serviceWorker.register("./sw.js");
+                                                                                                                                                                                                                                                                                                                                                                                      });
+                                                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                                                        </script>
+
+                                                                                                                                                                                                                                                                                                                                                                                        </body>
+                                                                                                                                                                                                                                                                                                                                                                                        </html>
+                                                                                                                                                                                                                                                                                                                                                                      }
