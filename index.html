@@ -440,34 +440,35 @@
                                                                                                                                                                                                                                                                                                                                                                                                         });
                                                                                                                                                                                                                                                                                                                                                                                                             });
 }
-                                                                                                                                                                                                                                                                                                 document.getElementById("addBtn").addEventListener("click", () => {
-                                                                                                                                                                                                                                                                                                combatants.push({
-                                                                                                                                                                                                                                                                                                      name: "Nuevo",
-                                                                                                                                                                                                                                                                                                            vida: 10,
-                                                                                                                                                                                                                                                                                                                  escudo: 0,
-                                                                                                                                                                                                                                                                                                                        quemadura: 0,
-                                                                                                                                                                                                                                                                                                                              veneno: 0,
-                                                                                                                                                                                                                                                                                                                                    herida: 0
-                                                                                                                                                                                                                                                                                                                                        });
+  document.getElementById("addBtn").addEventListener("click", () => {
+    combatants.push({
+      name: "Nuevo",
+      vida: 10,
+      escudo: 0,
+      quemadura: 0,
+      veneno: 0,
+      herida: 0
+    });
 
-                                                                                                                                                                                                                                                                                                                                            save();
-                                                                                                                                                                                                                                                                                                                                                render();
-                                                                                                                                                                                                                                                                                                                                                  });
+    save();
+    render();
+  });
 
-                                                                                                                                                                                                                                                                                                                                                    document.getElementById("resetBtn").addEventListener("click", () => {
-                                                                                                                                                                                                                                                                                                                                                        combatants = structuredClone(defaultState);
-                                                                                                                                                                                                                                                                                                                                                            save();
-                                                                                                                                                                                                                                                                                                                                                                render();
-                                                                                                                                                                                                                                                                                                                                                                  });
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    combatants = structuredClone(defaultState);
+    save();
+    render();
+  });
 
-                                                                                                                                                                                                                                                                                                                                                                    render();
-                                                                                                                                                                                                                                                                                                                                                                      if ("serviceWorker" in navigator) {
-                                                                                                                                                                                                                                                                                                                                                                            window.addEventListener("load", () => {
-                                                                                                                                                                                                                                                                                                                                                                                  navigator.serviceWorker.register("./sw.js");
-                                                                                                                                                                                                                                                                                                                                                                                      });
-                                                                                                                                                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                                                                                                                                                        </script>
+  render();
 
-                                                                                                                                                                                                                                                                                                                                                                                        </body>
-                                                                                                                                                                                                                                                                                                                                                                                        </html>
-                                                                                                                                                                                                                                                                                                                                                                      }
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js");
+    });
+  }
+</script>
+
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                      
