@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#1f3a2b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>Ghea Companion</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+*{box-sizing:border-box}
+:root{--gold:#c9a85d;--text:#f2ead6;--muted:#b3a88b}
+html,body{margin:0;min-height:100%;background:#070b08}
+body{
+ color:var(--text);font-family:Georgia,"Times New Roman",serif;overflow-x:hidden;
+ background:
+ radial-gradient(ellipse at 9% 15%,#244a24 0,transparent 28%),
+ radial-gradient(ellipse at 91% 16%,#4b1915 0,transparent 29%),
+ linear-gradient(90deg,#08170d 0 39%,#15150f 47% 53%,#1b0b09 61% 100%);
+}
+body:before{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.75;
+ background:
+ radial-gradient(circle at 8% 8%,#4e783633 0 2%,transparent 3%),
+ radial-gradient(circle at 15% 22%,#31572e44 0 4%,transparent 5%),
+ radial-gradient(circle at 91% 12%,#8d342944 0 3%,transparent 4%),
+ repeating-linear-gradient(115deg,#ffffff08 0 1px,transparent 1px 11px);
+}
+button,input{font-family:inherit} button{touch-action:manipulation}
+header{
+ min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:6px 15px;
+ background:linear-gradient(#17170fee,#090b08f5);border-bottom:2px ridge #8c713e;
+ box-shadow:0 5px 18px #000b,inset 0 -1px #2c2315
+}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{margin:0;color:#ead49a;font-size:27px;letter-spacing:6px;text-shadow:0 2px #000,0 0 10px #bd914755}
+.brand span{font-size:10px;color:#968b70;text-transform:uppercase;letter-spacing:1.3px}
+.reset-button{
+ border:1px solid #9a7944;border-radius:4px;padding:9px 13px;color:#f0deb0;font-weight:bold;
+ background:linear-gradient(#40301e,#17120d);box-shadow:inset 0 0 0 2px #100c08,0 2px 8px #000a
+}
+main{width:100%;max-width:1120px;margin:auto;padding:9px}
+.battlefield{display:grid;grid-template-columns:1fr 62px 1fr;gap:8px;align-items:stretch}
+.team{
+ position:relative;padding:9px;border-radius:5px;background:#0b100cd9;
+ border:2px ridge #6e5a35;box-shadow:inset 0 0 30px #000b,0 4px 14px #0009
+}
+.team:before{content:"";position:absolute;inset:4px;border:1px solid #8b74462e;pointer-events:none}
+.allies{border-color:#5f7f42;background:linear-gradient(#101a10e8,#09100be8)}
+.enemies{border-color:#874237;background:linear-gradient(#1b100ee8,#0e0a09e8)}
+.team-header{
+ height:35px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;
+ letter-spacing:2px;text-shadow:0 2px 2px #000
+}
+.allies .team-header{color:#a9d173}.enemies .team-header{color:#e37868}
+.formation-labels{
+ display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px;text-align:center;
+ font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#c3b796
+}
+.formation-labels span{padding:3px 0 5px;border-bottom:1px solid #987a414f}
+.formation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(94px,1fr));gap:7px}
+.slot{
+ min-height:94px;padding:5px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+ color:var(--text);border-radius:3px;border:1px dashed #6f603f;
+ background:
+ radial-gradient(circle at center,#8b77451a 0 38%,transparent 40%),
+ repeating-radial-gradient(circle at center,transparent 0 27px,#9a824522 28px 29px,transparent 30px 36px),
+ linear-gradient(145deg,#171910,#080b08);
+ box-shadow:inset 0 0 22px #000c
+}
+.slot:before{
+ content:"";position:absolute;inset:6px;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);
+ border:1px solid #a4894a40;box-shadow:inset 0 0 0 3px #0004;pointer-events:none
+}
+.slot.empty{opacity:.78}
+.slot.empty:after{
+ content:"+";position:relative;z-index:2;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;
+ font:700 27px Arial,sans-serif;text-shadow:0 2px 3px #000;background:#0c0e0ba8;border:1px solid #85703f
+}
+.allies .slot{border-color:#4e703a}.allies .slot.empty:after{color:#91b567;border-color:#55763d}
+.enemies .slot{border-color:#733b32}.enemies .slot.empty:after{color:#c36b5b;border-color:#7f4036}
+.slot.occupied{opacity:1;border-style:solid}
+.allies .slot.occupied{
+ border-color:#79a153;background:
+ radial-gradient(circle at 50% 40%,#51773b 0 25%,#1d331d 43%,#0b120c 72%),
+ repeating-radial-gradient(circle at center,transparent 0 27px,#8caf5f33 28px 29px,transparent 30px 36px)
+}
+.enemies .slot.occupied{
+ border-color:#ad5143;background:
+ radial-gradient(circle at 50% 40%,#844034 0 25%,#3b1d18 43%,#130c0b 72%),
+ repeating-radial-gradient(circle at center,transparent 0 27px,#b45b4933 28px 29px,transparent 30px 36px)
+}
+.slot.move-target{border:2px solid #e0bd65;opacity:1;box-shadow:0 0 16px #d6ad5266,inset 0 0 20px #000}
+.slot.move-target:after{content:"↔";color:#f1d57d}
+.fighter{
+ width:100%;height:100%;position:relative;z-index:2;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:3px;text-align:center
+}
+.fighter-icon{width:43px;height:49px;font-size:0;filter:drop-shadow(0 4px 3px #000)}
+.fighter-icon:before{
+ content:"";display:block;width:43px;height:49px;
+ clip-path:polygon(50% 0,91% 13%,86% 67%,50% 100%,14% 67%,9% 13%);
+ background:linear-gradient(135deg,#91ad55 0,#496d31 40%,#172817 75%);
+ box-shadow:inset 0 0 0 3px #d6ba6a77
+}
+.fighter-icon:after{
+ content:"";position:absolute;width:17px;height:27px;margin:-39px 0 0 13px;
+ background:#d0b96966;clip-path:polygon(45% 0,58% 0,58% 40%,100% 54%,58% 59%,58% 100%,45% 100%,45% 59%,0 54%,45% 40%)
+}
+.enemies .fighter-icon:before{background:linear-gradient(135deg,#c15a47 0,#743126 42%,#321612 76%)}
+.enemies .fighter-icon:after{background:#e0a07766}
+.fighter-name{
+ width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:bold;
+ color:#f5ecd4;text-shadow:0 2px 2px #000
+}
+.fighter-stats{
+ display:flex;justify-content:center;gap:8px;padding:2px 7px;border:1px solid #76643b55;border-radius:10px;
+ background:#070a08cc;font:700 11px Arial,sans-serif
+}
+.fighter-statuses{min-height:13px;font-size:11px;letter-spacing:2px}
+.versus{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#d9b75f;
+ background:linear-gradient(90deg,transparent,#a0833e13,transparent);font-weight:bold;text-shadow:0 2px 3px #000
+}
+.versus .swords{
+ width:55px;height:55px;display:grid;place-items:center;border-radius:50%;font-size:27px;
+ border:2px ridge #9b7d43;background:radial-gradient(circle,#29251a,#0e0e0b 70%);
+ box-shadow:inset 0 0 13px #000,0 3px 10px #000b
+}
+.versus .vs{font-size:10px;letter-spacing:2px}
+.move-message{
+ display:none;margin-top:8px;padding:8px;border:1px solid #8d733d;border-radius:4px;
+ background:#211c11e8;color:#ead18d;font-size:12px;text-align:center
+}
+.move-message.show{display:block}
+.cancel-move{margin-left:8px;border:1px solid #8d733d;border-radius:3px;padding:5px 8px;background:#3b301c;color:#fff;font-weight:bold}
+.tip{margin-top:8px;color:#a0977f;font-size:10px;text-align:center}
+.overlay{
+ position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:13px;
+ background:#000c;backdrop-filter:blur(3px);z-index:100
+}
+.overlay.show{display:flex}
+.editor{
+ width:min(560px,100%);max-height:95vh;overflow-y:auto;padding:14px;color:#f1e7cf;
+ background:
+ radial-gradient(circle at 10% 0,#33432544,transparent 28%),
+ linear-gradient(#181b14fa,#090c09fc);
+ border:2px ridge #9a7b43;border-radius:5px;
+ box-shadow:inset 0 0 0 3px #17120b,inset 0 0 0 4px #6a5430,0 12px 45px #000e
+}
+.editor-top{display:flex;gap:9px;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #756039}
+.editor-icon{
+ width:43px;height:49px;font-size:0;clip-path:polygon(50% 0,91% 13%,86% 67%,50% 100%,14% 67%,9% 13%);
+ background:linear-gradient(135deg,#8eab55,#466a31 45%,#172817);box-shadow:inset 0 0 0 3px #d6ba6a77
+}
+.name-input{
+ flex:1;min-width:0;border:none;border-bottom:1px solid #846d40;background:transparent;color:#f4e8c9;
+ font-size:20px;font-weight:bold;padding:6px
+}
+.close-button{
+ width:38px;height:38px;border:1px solid #846d40;border-radius:50%;background:#241d12;color:#e8d39a;font-size:20px
+}
+.main-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{
+ padding:10px 4px;text-align:center;border:1px solid #625035;border-radius:4px;
+ background:linear-gradient(#202419,#10130e);box-shadow:inset 0 0 13px #0007
+}
+.stat-title{margin-bottom:7px;color:#d5bd7c;font-size:11px;font-weight:bold;letter-spacing:1px}
+.counter{display:flex;align-items:center;justify-content:center;gap:7px}
+.counter button,.state-counter button{
+ border:1px solid #907541;border-radius:50%;background:linear-gradient(#382d1b,#17120d);color:#f3dfaa;font-weight:bold;
+ box-shadow:inset 0 0 0 2px #0007
+}
+.counter button{width:40px;height:40px;font-size:23px}.counter-value{min-width:34px;font-size:23px;font-weight:bold}
+.states-title{margin:12px 0 6px;color:#ceb675;font-size:10px;text-align:center;letter-spacing:2px}
+.states{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.state{border:1px solid #50442d;border-radius:4px;padding:7px 2px;text-align:center;opacity:.46;background:#10130e}
+.state.active{opacity:1;background:#1c2116;border-color:#8d713e;box-shadow:inset 0 0 12px #0008}
+.state-name{margin-bottom:5px;font-size:10px}.state-counter{display:flex;align-items:center;justify-content:center;gap:3px}
+.state-counter button{width:29px;height:29px;font-size:18px}.state-value{min-width:19px;font-size:16px;font-weight:bold}
+.editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.move-button,.delete-button{
+ border-radius:3px;padding:11px 8px;color:#f0dda9;font-weight:bold;border:1px solid #876e3d;
+ background:linear-gradient(#382d1c,#17120d)
+}
+.delete-button{color:#f09b8e;border-color:#833f36;background:linear-gradient(#41221d,#1b100e)}
+@media(max-width:700px) and (orientation:portrait){
+ header{min-height:52px}.brand span{display:none}.brand h1{font-size:25px}
+ main{padding:6px}.battlefield{grid-template-columns:1fr 35px 1fr;gap:4px}.team{padding:5px}
+ .formation{gap:4px;grid-template-rows:repeat(3,91px)}.slot{min-height:91px;padding:3px}
+ .fighter-icon{width:32px;height:37px}.fighter-icon:before{width:32px;height:37px}
+ .fighter-icon:after{width:13px;height:21px;margin:-30px 0 0 10px}
+ .fighter-name{font-size:9px}.fighter-stats{flex-direction:column;gap:0;font-size:9px;padding:1px 5px}
+ .formation-labels{font-size:7px}.team-header{font-size:10px}
+ .versus .swords{width:32px;height:32px;font-size:18px}.versus .vs{font-size:8px}
+}
+@media(orientation:landscape){
+ header{min-height:48px}main{padding:6px 9px}
+ .formation{grid-template-rows:repeat(3,minmax(76px,1fr))}.slot{min-height:76px}
+}
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <h1>GHEA</h1>
+    <span>Campo de batalla</span>
+  </div>
+
+  <button class="reset-button" id="resetBtn">
+    Nueva partida
+  </button>
+</header>
+
+<main>
+
+  <div class="battlefield">
+
+    <section class="team allies">
+
+      <div class="team-header">
+        🛡️ ALIADOS
+      </div>
+
+      <div class="formation-labels">
+        <span>Retaguardia</span>
+        <span>Vanguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="allyFormation"
+      ></div>
+
+    </section>
+
+    <div class="versus">
+      <div class="swords">⚔️</div>
+      <div class="vs">VS</div>
+    </div>
+
+    <section class="team enemies">
+
+      <div class="team-header">
+        🛡️ ENEMIGOS
+      </div>
+
+      <div class="formation-labels">
+        <span>Vanguardia</span>
+        <span>Retaguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="enemyFormation"
+      ></div>
+
+    </section>
+
+  </div>
+
+  <div
+    class="move-message"
+    id="moveMessage"
+  >
+    Elegí una casilla libre para mover la ficha.
+
+    <button
+      class="cancel-move"
+      id="cancelMoveBtn"
+    >
+      Cancelar
+    </button>
+  </div>
+
+  <div class="tip">
+    Tocá una casilla vacía para agregar.
+    Tocá una ficha para editarla.
+  </div>
+
+</main>
+
+
+<div
+  class="overlay"
+  id="overlay"
+>
+
+  <div class="editor">
+
+    <div class="editor-top">
+
+      <div
+        class="editor-icon"
+        id="editorIcon"
+      >
+        🛡️
+      </div>
+
+      <input
+        class="name-input"
+        id="nameInput"
+        type="text"
+        value="Nombre"
+        aria-label="Nombre"
+      >
+
+      <button
+        class="close-button"
+        id="closeBtn"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="main-stats">
+
+      <div class="stat">
+
+        <div class="stat-title">
+          ❤️ VIDA
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="vidaValue"
+          >
+            10
+          </span>
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-title">
+          🛡️ ESCUDO
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="escudoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="states-title">
+      ESTADOS
+    </div>
+
+    <div class="states">
+
+      <div
+        class="state"
+        id="quemaduraBox"
+      >
+
+        <div class="state-name">
+          🔥 Quemadura
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="quemaduraValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="venenoBox"
+      >
+
+        <div class="state-name">
+          ☠️ Veneno
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="venenoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="heridaBox"
+      >
+
+        <div class="state-name">
+          🩸 Herida
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="heridaValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="editor-actions">
+
+      <button
+        class="move-button"
+        id="moveBtn"
+      >
+        ↔️ Mover
+      </button>
+
+      <button
+        class="delete-button"
+        id="deleteBtn"
+      >
+        🗑️ Eliminar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const STORAGE_KEY = "ghea-state-v3";
+
+const allyFormation =
+  document.getElementById("allyFormation");
+
+const enemyFormation =
+  document.getElementById("enemyFormation");
+
+const overlay =
+  document.getElementById("overlay");
+
+const nameInput =
+  document.getElementById("nameInput");
+
+const editorIcon =
+  document.getElementById("editorIcon");
+
+const moveMessage =
+  document.getElementById("moveMessage");
+
+
+function createFighter(side) {
+  return {
+    side: side,
+    name: side === "ally"
+      ? "Nombre"
+      : "Enemigo",
+
+    vida: 10,
+    escudo: 0,
+
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
+  };
+}
+
+
+function createInitialState() {
+
+  const allies =
+    Array(6).fill(null);
+
+  const enemies =
+    Array(6).fill(null);
+
+  allies[1] =
+    createFighter("ally");
+
+  allies[3] =
+    createFighter("ally");
+
+  return {
+    allies: allies,
+    enemies: enemies
+  };
+}
+
+
+let gameState;
+
+try {
+
+  const stored =
+    JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    );
+
+  if (
+    stored &&
+    Array.isArray(stored.allies) &&
+    Array.isArray(stored.enemies) &&
+    stored.allies.length === 6 &&
+    stored.enemies.length === 6
+  ) {
+    gameState = stored;
+  } else {
+    gameState =
+      createInitialState();
+  }
+
+} catch (error) {
+
+  gameState =
+    createInitialState();
+
+}
+
+
+let selectedSide = null;
+let selectedSlot = null;
+
+let moveMode = false;
+let movingSide = null;
+let movingSlot = null;
+
+
+function save() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(gameState)
+  );
+
+}
+
+
+function getTeam(side) {
+
+  return side === "ally"
+    ? gameState.allies
+    : gameState.enemies;
+
+}
+
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function getStatuses(fighter) {
+
+  let statuses = "";
+
+  if (fighter.quemadura > 0) {
+    statuses += "🔥";
+  }
+
+  if (fighter.veneno > 0) {
+    statuses += "☠️";
+  }
+
+  if (fighter.herida > 0) {
+    statuses += "🩸";
+  }
+
+  return statuses;
+
+}
+
+
+function renderFormation(
+  side,
+  element
+) {
+
+  const team =
+    getTeam(side);
+
+  element.innerHTML = "";
+
+  team.forEach(
+    function(fighter, index) {
+
+      const slot =
+        document.createElement("button");
+
+      slot.className = "slot";
+
+      slot.dataset.side = side;
+      slot.dataset.slot = index;
+
+
+      if (fighter) {
+
+        slot.classList.add(
+          "occupied"
+        );
+
+        const icon =
+          side === "ally"
+            ? "🛡️"
+            : "👹";
+
+        slot.innerHTML = `
+          <div class="fighter">
+
+            <div class="fighter-icon">
+              ${icon}
+            </div>
+
+            <div class="fighter-name">
+              ${escapeHtml(fighter.name)}
+            </div>
+
+            <div class="fighter-stats">
+              <span>❤️ ${fighter.vida}</span>
+              <span>🛡️ ${fighter.escudo}</span>
+            </div>
+
+            <div class="fighter-statuses">
+              ${getStatuses(fighter)}
+            </div>
+
+          </div>
+        `;
+
+      } else {
+
+        slot.classList.add(
+          "empty"
+        );
+
+        if (
+          moveMode &&
+          side === movingSide
+        ) {
+
+          slot.classList.add(
+            "move-target"
+          );
+
+        }
+
+      }
+
+      element.appendChild(slot);
+
+    }
+  );
+
+}
+
+
+function render() {
+
+  renderFormation(
+    "ally",
+    allyFormation
+  );
+
+  renderFormation(
+    "enemy",
+    enemyFormation
+  );
+
+
+  if (moveMode) {
+
+    moveMessage.classList.add(
+      "show"
+    );
+
+  } else {
+
+    moveMessage.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+function openEditor(
+  side,
+  slot
+) {
+
+  const fighter =
+    getTeam(side)[slot];
+
+  if (!fighter) {
+    return;
+  }
+
+  selectedSide = side;
+  selectedSlot = slot;
+
+  editorIcon.textContent =
+    side === "ally"
+      ? "🛡️"
+      : "👹";
+
+  nameInput.value =
+    fighter.name;
+
+  updateEditor();
+
+  overlay.classList.add(
+    "show"
+  );
+
+}
+
+
+function closeEditor() {
+
+  overlay.classList.remove(
+    "show"
+  );
+
+  selectedSide = null;
+  selectedSlot = null;
+
+}
+
+
+function updateEditor() {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  if (!fighter) {
+    return;
+  }
+
+
+  document.getElementById(
+    "vidaValue"
+  ).textContent =
+    fighter.vida;
+
+
+  document.getElementById(
+    "escudoValue"
+  ).textContent =
+    fighter.escudo;
+
+
+  document.getElementById(
+    "quemaduraValue"
+  ).textContent =
+    fighter.quemadura;
+
+
+  document.getElementById(
+    "venenoValue"
+  ).textContent =
+    fighter.veneno;
+
+
+  document.getElementById(
+    "heridaValue"
+  ).textContent =
+    fighter.herida;
+
+
+  document.getElementById(
+    "quemaduraBox"
+  ).classList.toggle(
+    "active",
+    fighter.quemadura > 0
+  );
+
+
+  document.getElementById(
+    "venenoBox"
+  ).classList.toggle(
+    "active",
+    fighter.veneno > 0
+  );
+
+
+  document.getElementById(
+    "heridaBox"
+  ).classList.toggle(
+    "active",
+    fighter.herida > 0
+  );
+
+}
+
+
+function changeStat(
+  stat,
+  amount
+) {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  fighter[stat] =
+    Math.max(
+      0,
+      Number(fighter[stat] || 0)
+        + amount
+    );
+
+  save();
+  updateEditor();
+  render();
+
+}
+
+
+function handleSlotClick(event) {
+
+  const slot =
+    event.target.closest(".slot");
+
+  if (!slot) {
+    return;
+  }
+
+  const side =
+    slot.dataset.side;
+
+  const index =
+    Number(slot.dataset.slot);
+
+  const team =
+    getTeam(side);
+
+  const fighter =
+    team[index];
+
+
+  if (moveMode) {
+
+    if (
+      side === movingSide &&
+      fighter === null
+    ) {
+
+      const movingTeam =
+        getTeam(movingSide);
+
+      movingTeam[index] =
+        movingTeam[movingSlot];
+
+      movingTeam[movingSlot] =
+        null;
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      save();
+      render();
+
+    }
+
+    return;
+  }
+
+
+  if (fighter) {
+
+    openEditor(
+      side,
+      index
+    );
+
+    return;
+  }
+
+
+  team[index] =
+    createFighter(side);
+
+  save();
+  render();
+
+  openEditor(
+    side,
+    index
+  );
+
+}
+
+
+allyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+enemyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+document
+  .querySelectorAll(
+    "[data-editor-stat]"
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          const stat =
+            button.dataset.editorStat;
+
+          const amount =
+            Number(
+              button.dataset.editorAmount
+            );
+
+          changeStat(
+            stat,
+            amount
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+nameInput.addEventListener(
+  "input",
+  function() {
+
+    if (
+      selectedSide === null ||
+      selectedSlot === null
+    ) {
+      return;
+    }
+
+    const fighter =
+      getTeam(selectedSide)[selectedSlot];
+
+    fighter.name =
+      nameInput.value;
+
+    save();
+    render();
+
+  }
+);
+
+
+document
+  .getElementById("closeBtn")
+  .addEventListener(
+    "click",
+    closeEditor
+  );
+
+
+document
+  .getElementById("deleteBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      const team =
+        getTeam(selectedSide);
+
+      team[selectedSlot] =
+        null;
+
+      save();
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("moveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      movingSide =
+        selectedSide;
+
+      movingSlot =
+        selectedSlot;
+
+      moveMode = true;
+
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("cancelMoveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("resetBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      const confirmed =
+        confirm(
+          "¿Iniciar una nueva partida?"
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      gameState =
+        createInitialState();
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      closeEditor();
+
+      save();
+      render();
+
+    }
+  );
+
+
+overlay.addEventListener(
+  "click",
+  function(event) {
+
+    if (event.target === overlay) {
+      closeEditor();
+    }
+
+  }
+);
+
+
+render();
+
+
+if ("serviceWorker" in navigator) {
+
+  window.addEventListener(
+    "load",
+    function() {
+
+      navigator.serviceWorker.register(
+        "./sw.js"
+      );
+
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>
