@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <meta name="theme-color" content="#1f3a2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,9 +26,6 @@
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
       background: #14251b;
       padding: 16px;
       text-align: center;
@@ -61,6 +57,7 @@
       padding: 14px;
       margin-bottom: 14px;
     }
+
     .top {
       display: flex;
       justify-content: space-between;
@@ -85,7 +82,7 @@
       background: #492222;
       color: #ffdada;
       border-radius: 8px;
-      min-width: 42px;
+      width: 42px;
       height: 42px;
       font-size: 18px;
     }
@@ -99,7 +96,7 @@
     .stat {
       background: #203528;
       border-radius: 12px;
-      padding: 10px 6px;
+      padding: 10px 5px;
       text-align: center;
     }
 
@@ -133,14 +130,13 @@
     }
 
     .value {
-      min-width: 35px;
+      min-width: 30px;
       font-size: 24px;
       font-weight: bold;
-      text-align: center;
     }
+
     .states-title {
-      margin-top: 14px;
-      margin-bottom: 7px;
+      margin: 14px 0 7px;
       color: #aab9af;
       font-size: 11px;
       letter-spacing: 1px;
@@ -159,7 +155,6 @@
       padding: 7px 3px;
       text-align: center;
       opacity: 0.45;
-      transition: 0.2s;
     }
 
     .state.active {
@@ -170,9 +165,6 @@
 
     .state-name {
       font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       margin-bottom: 5px;
     }
 
@@ -195,17 +187,17 @@
     }
 
     .state-value {
-      min-width: 22px;
+      min-width: 20px;
       font-size: 17px;
       font-weight: bold;
     }
+
     .add,
     .reset {
       width: 100%;
       border: none;
       border-radius: 12px;
       padding: 14px;
-      margin-top: 4px;
       font-size: 16px;
       font-weight: bold;
       color: white;
@@ -219,35 +211,6 @@
       background: #4a2929;
       margin-top: 12px;
       margin-bottom: 25px;
-    }
-
-    @media (max-width: 360px) {
-      main {
-        padding: 9px;
-      }
-
-      .combatant {
-        padding: 10px;
-      }
-
-      .counter button {
-        width: 36px;
-        height: 40px;
-      }
-
-      .value {
-        font-size: 21px;
-        min-width: 27px;
-      }
-
-      .state-name {
-        font-size: 10px;
-      }
-
-      .state-counter button {
-        width: 27px;
-        height: 29px;
-      }
     }
   </style>
 </head>
@@ -270,205 +233,222 @@
     Reiniciar contadores
   </button>
 </main>
+
 <script>
-  const STORAGE_KEY = "ghea-state-v2";
+const STORAGE_KEY = "ghea-state-v2";
 
-  const defaultState = [
-    {
-      name: "Guerrero",
-      vida: 10,
-      escudo: 0,
-      quemadura: 0,
-      veneno: 0,
-      herida: 0
-    },
-    {
-      name: "Enemigo A",
-      vida: 10,
-      escudo: 0,
-      quemadura: 0,
-      veneno: 0,
-      herida: 0
-    }
-  ];
+const defaultState = [
+  {
+    name: "Guerrero",
+    vida: 10,
+    escudo: 0,
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
+  },
+  {
+    name: "Enemigo A",
+    vida: 10,
+    escudo: 0,
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
+  }
+];
 
-  let combatants;
+let combatants;
 
-  try {
-    combatants = JSON.parse(localStorage.getItem(STORAGE_KEY));
+try {
+  combatants = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-    if (!Array.isArray(combatants)) {
-      combatants = structuredClone(defaultState);
-    }
-  } catch {
-    combatants = structuredClone(defaultState);
+  if (!Array.isArray(combatants)) {
+    combatants = JSON.parse(JSON.stringify(defaultState));
+  }
+} catch (error) {
+  combatants = JSON.parse(JSON.stringify(defaultState));
+}
+
+const container = document.getElementById("combatants");
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(combatants));
+}
+
+function change(index, stat, amount) {
+  combatants[index][stat] =
+    Math.max(0, Number(combatants[index][stat] || 0) + amount);
+
+  save();
+  render();
+}
+
+function createState(index, stat, icon, label) {
+  const value = combatants[index][stat] || 0;
+  const active = value > 0 ? "active" : "";
+
+  return `
+    <div class="state ${active}">
+      <div class="state-name">${icon} ${label}</div>
+
+      <div class="state-counter">
+        <button
+          data-index="${index}"
+          data-stat="${stat}"
+          data-amount="-1"
+        >−</button>
+
+        <span class="state-value">${value}</span>
+
+        <button
+          data-index="${index}"
+          data-stat="${stat}"
+          data-amount="1"
+        >+</button>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  container.innerHTML = "";
+
+  combatants.forEach((c, index) => {
+    const card = document.createElement("div");
+    card.className = "combatant";
+
+    card.innerHTML = `
+      <div class="top">
+        <input
+          class="name"
+          type="text"
+          value="${c.name}"
+          data-name="${index}"
+          aria-label="Nombre"
+        >
+
+        <button
+          class="delete"
+          data-delete="${index}"
+          aria-label="Eliminar"
+        >🗑️</button>
+      </div>
+
+      <div class="main-stats">
+
+        <div class="stat">
+          <div class="stat-title">❤️ VIDA</div>
+
+          <div class="counter">
+            <button
+              data-index="${index}"
+              data-stat="vida"
+              data-amount="-1"
+            >−</button>
+
+            <span class="value">${c.vida}</span>
+
+            <button
+              data-index="${index}"
+              data-stat="vida"
+              data-amount="1"
+            >+</button>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">🛡️ ESCUDO</div>
+
+          <div class="counter">
+            <button
+              data-index="${index}"
+              data-stat="escudo"
+              data-amount="-1"
+            >−</button>
+
+            <span class="value">${c.escudo}</span>
+
+            <button
+              data-index="${index}"
+              data-stat="escudo"
+              data-amount="1"
+            >+</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="states-title">ESTADOS</div>
+
+      <div class="states">
+        ${createState(index, "quemadura", "🔥", "Quemadura")}
+        ${createState(index, "veneno", "☠️", "Veneno")}
+        ${createState(index, "herida", "🩸", "Herida")}
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+container.addEventListener("click", function(event) {
+  const button = event.target.closest("button");
+
+  if (!button) return;
+
+  if (button.dataset.stat) {
+    const index = Number(button.dataset.index);
+    const amount = Number(button.dataset.amount);
+
+    change(index, button.dataset.stat, amount);
   }
 
-  const container = document.getElementById("combatants");
+  if (button.dataset.delete !== undefined) {
+    const index = Number(button.dataset.delete);
 
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(combatants));
-  }
-
-  function change(index, stat, amount) {
-    combatants[index][stat] = Math.max(
-      0,
-      Number(combatants[index][stat] || 0) + amount
-    );
-
-    save();
-    render();
-  }
-
-  function updateName(index, value) {
-    combatants[index].name = value;
-    save();
-  }
-
-  function removeCombatant(index) {
     combatants.splice(index, 1);
     save();
     render();
   }
-  function createState(index, stat, icon, label) {
-    const value = combatants[index][stat];
-    const active = value > 0 ? "active" : "";
+});
 
-    return `
-      <div class="state ${active}">
-        <div class="state-name">${icon} ${label}</div>
+container.addEventListener("input", function(event) {
+  if (event.target.dataset.name !== undefined) {
+    const index = Number(event.target.dataset.name);
 
-        <div class="state-counter">
-          <button data-action="minus" data-index="${index}" data-stat="${stat}">−</button>
-
-          <span class="state-value">${value}</span>
-
-          <button data-action="plus" data-index="${index}" data-stat="${stat}">+</button>
-        </div>
-      </div>
-    `;
+    combatants[index].name = event.target.value;
+    save();
   }
+});
 
-  function render() {
-    container.innerHTML = "";
-
-    combatants.forEach((c, index) => {
-      const card = document.createElement("div");
-      card.className = "combatant";
-
-      card.innerHTML = `
-        <div class="top">
-          <input
-            class="name"
-            type="text"
-            value="${c.name}"
-            data-name-index="${index}"
-            aria-label="Nombre del combatiente"
-          >
-
-          <button
-            class="delete"
-            data-delete-index="${index}"
-            aria-label="Eliminar combatiente"
-          >
-            🗑️
-          </button>
-        </div>
-
-        <div class="main-stats">
-          <div class="stat">
-                        <div class="stat-title">❤️ VIDA</div>
-
-                                    <div class="counter">
-                                                  <button data-action="minus" data-index="${index}" data-stat="vida">−</button>
-
-                                                                <span class="value">${c.vida}</span>
-
-                                                                              <button data-action="plus" data-index="${index}" data-stat="vida">+</button>
-                                                                                          </div>
-                                                                                                    </div>
-
-                                                                                                              <div class="stat">
-                                                                                                                          <div class="stat-title">🛡️ ESCUDO</div>
-
-                                                                                                                                      <div class="counter">
-                                                                                                                                                    <button data-action="minus" data-index="${index}" data-stat="escudo">−</button>
-
-                                                                                                                                                                  <span class="value">${c.escudo}</span>
-
-                                                                                                                                                                                <button data-action="plus" data-index="${index}" data-stat="escudo">+</button>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                                      </div>
-
-                                                                                                                                                                                                              </div>
-
-                                                                                                                                                                                                                      <div class="states-title">ESTADOS</div>
-
-                                                                                                                                                                                                                              <div class="states">
-                                                                                                                                                                                                                                        ${createState(index, "quemadura", "🔥", "Quemadura")}
-                                                                                                                                                                                                                                                  ${createState(index, "veneno", "☠️", "Veneno")}
-                                                                                                                                                                                                                                                            ${createState(index, "herida", "🩸", "Herida")}
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                          `;
-
-                                                                                                                                                                                                                                                                                container.appendChild(card);
-                                                                                                                                                                                                                                                                                    });
-
-                                                                                                                                                                                                                                                                                        bindEvents();
-                                                                                                                                                                                                                                                                                          }
-                                                                                                                                                                                                                                                                                            function bindEvents() {
-
-                                                                                                                                                                                                                                                                                                    document.querySelectorAll("[data-action]").forEach(button => {
-                                                                                                                                                                                                                                                                                                          button.addEventListener("click", () => {
-                                                                                                                                                                                                                                                                                                                  const index = Number(button.dataset.index);
-                                                                                                                                                                                                                                                                                                                          const stat = button.dataset.stat;
-                                                                                                                                                                                                                                                                                                                                  const amount = button.dataset.action === "plus" ? 1 : -1;
-
-                                                                                                                                                                                                                                                                                                                                          change(index, stat, amount);
-                                                                                                                                                                                                                                                                                                                                                });
-                                                                                                                                                                                                                                                                                                                                                    });
-
-                                                                                                                                                                                                                                                                                                                                                        document.querySelectorAll("[data-name-index]").forEach(input => {
-                                                                                                                                                                                                                                                                                                                                                              input.addEventListener("input", () => {
-                                                                                                                                                                                                                                                                                                                                                                      updateName(Number(input.dataset.nameIndex), input.value);
-                                                                                                                                                                                                                                                                                                                                                                            });
-                                                                                                                                                                                                                                                                                                                                                                                });
-
-                                                                                                                                                                                                                                                                                                                                                                                    document.querySelectorAll("[data-delete-index]").forEach(button => {
-                                                                                                                                                                                                                                                                                                                                                                                          button.addEventListener("click", () => {
-                                                                                                                                                                                                                                                                                                                                                                                                  removeCombatant(Number(button.dataset.deleteIndex));
-                                                                                                                                                                                                                                                                                                                                                                                                        });
-                                                                                                                                                                                                                                                                                                                                                                                                            });
-}
-  document.getElementById("addBtn").addEventListener("click", () => {
-    combatants.push({
-      name: "Nuevo",
-      vida: 10,
-      escudo: 0,
-      quemadura: 0,
-      veneno: 0,
-      herida: 0
-    });
-
-    save();
-    render();
+document.getElementById("addBtn").addEventListener("click", function() {
+  combatants.push({
+    name: "Nuevo",
+    vida: 10,
+    escudo: 0,
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
   });
 
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    combatants = structuredClone(defaultState);
-    save();
-    render();
-  });
-
+  save();
   render();
+});
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js");
-    });
-  }
+document.getElementById("resetBtn").addEventListener("click", function() {
+  combatants = JSON.parse(JSON.stringify(defaultState));
+
+  save();
+  render();
+});
+
+render();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function() {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
 </script>
 
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                      
