@@ -1,46 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1f2a22">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Ghea Companion</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<style>
-:root{--panel:#1c241f;--panel2:#263129;--line:#3e5143;--text:#f3f5f3;--muted:#aeb9b0;--life:#ef6b6b;--shield:#6db9ff;--plus:#3f7b4d;--minus:#8b3f3f;--danger:#5f2e2e}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#101511,#151c17);color:var(--text);min-height:100vh}
-header{position:sticky;top:0;z-index:10;padding:18px 16px 14px;background:rgba(17,22,19,.96);border-bottom:1px solid #263229;text-align:center}.title{font-size:26px;font-weight:800;letter-spacing:2px}.subtitle{margin-top:3px;color:var(--muted);font-size:13px}
-main{width:min(760px,100%);margin:0 auto;padding:16px 14px 110px}.fighter{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:14px}.fighter-top{display:flex;gap:10px;align-items:center;margin-bottom:14px}
-.name{flex:1;min-width:0;border:1px solid #435347;background:#111713;color:var(--text);border-radius:12px;padding:11px 12px;font-size:18px;font-weight:700;outline:none}.delete{width:44px;height:44px;border:1px solid #764040;background:var(--danger);color:#fff;border-radius:12px;font-size:20px;font-weight:700}
-.stat{background:var(--panel2);border-radius:15px;padding:12px;margin-top:10px}.stat-label{text-align:center;font-size:13px;font-weight:800;letter-spacing:.9px;margin-bottom:9px}.life-label{color:#ff9a9a}.shield-label{color:#9ed0ff}
-.controls{display:grid;grid-template-columns:64px 1fr 64px;align-items:center;gap:12px}.counter-btn{height:58px;border:0;border-radius:14px;color:#fff;font-size:30px;font-weight:800}.minus{background:var(--minus)}.plus{background:var(--plus)}
-.value{text-align:center;font-size:36px;line-height:1;font-weight:900}.life-value{color:var(--life)}.shield-value{color:var(--shield)}
-.bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(17,22,19,.96);border-top:1px solid #263229}.bottom-inner{width:min(760px,100%);margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
-.add,.reset{min-height:52px;border-radius:14px;border:1px solid var(--line);color:#fff;font-size:16px;font-weight:800}.add{background:#344937}.reset{width:56px;background:#2a322c;font-size:22px}.empty{text-align:center;color:var(--muted);padding:50px 24px}
-</style>
-</head>
-<body>
-<header><div class="title">GHEA</div><div class="subtitle">Contador de Vida y Escudo</div></header>
-<main id="list"></main>
-<div class="bottom"><div class="bottom-inner"><button class="add" id="addBtn">＋ Agregar personaje / enemigo</button><button class="reset" id="resetBtn">↻</button></div></div>
-<script>
-const STORAGE_KEY="ghea-counter-v1",list=document.getElementById("list");
-let fighters=load();if(!fighters.length){fighters=[{id:Date.now(),name:"Personaje",life:10,shield:0}];save()}
-function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]}catch{return[]}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(fighters))}
-function esc(t){return String(t).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function render(){list.innerHTML="";if(!fighters.length){list.innerHTML='<div class="empty">No hay contadores.</div>';return}
-fighters.forEach(f=>{const c=document.createElement("section");c.className="fighter";c.innerHTML=`<div class="fighter-top"><input class="name" value="${esc(f.name)}"><button class="delete">×</button></div><div class="stat"><div class="stat-label life-label">❤️ VIDA</div><div class="controls"><button class="counter-btn minus lm">−</button><div class="value life-value">${f.life}</div><button class="counter-btn plus lp">＋</button></div></div><div class="stat"><div class="stat-label shield-label">🛡️ ESCUDO</div><div class="controls"><button class="counter-btn minus sm">−</button><div class="value shield-value">${f.shield}</div><button class="counter-btn plus sp">＋</button></div></div>`;
-c.querySelector(".name").oninput=e=>{f.name=e.target.value;save()};c.querySelector(".lm").onclick=()=>chg(f.id,"life",-1);c.querySelector(".lp").onclick=()=>chg(f.id,"life",1);c.querySelector(".sm").onclick=()=>chg(f.id,"shield",-1);c.querySelector(".sp").onclick=()=>chg(f.id,"shield",1);c.querySelector(".delete").onclick=()=>{fighters=fighters.filter(x=>x.id!==f.id);save();render()};list.appendChild(c)})}
-function chg(id,k,d){const f=fighters.find(x=>x.id===id);if(!f)return;f[k]=Math.max(0,(+f[k]||0)+d);save();render()}
-document.getElementById("addBtn").onclick=()=>{fighters.push({id:Date.now()+Math.random(),name:"Enemigo",life:10,shield:0});save();render();setTimeout(()=>scrollTo({top:document.body.scrollHeight,behavior:"smooth"}),50)}
-document.getElementById("resetBtn").onclick=()=>{if(confirm("¿Reiniciar todos los contadores?")){fighters=[{id:Date.now(),name:"Personaje",life:10,shield:0}];save();render()}}
-if("serviceWorker"in navigator){addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"))}
-render();
-</script>
-</body>
-</html>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <meta name="theme-color" content="#1f3a2b">
+        <meta name="mobile-web-app-capable" content="yes">
+          <meta name="apple-mobile-web-app-capable" content="yes">
+
+            <title>Ghea Companion</title>
+
+              <link rel="manifest" href="./manifest.json">
+                <link rel="icon" href="./icon-192.png">
+                  <link rel="apple-touch-icon" href="./icon-192.png">
+
+                    <style>
+                        * {
+                              box-sizing: border-box;
+                                  }
+
+                                      body {
+                                            margin: 0;
+                                                  background: #0d1711;
+                                                        color: #f3f3f3;
+                                                              font-family: Arial, sans-serif;
+                                                                  }
+
+                                                                      header {
+                                                                            position: sticky;
+                                                                                  top: 0;
+                                                                                        z-index: 10;
+                                                                                              background: #14251b;
+                                                                                                    padding: 16px;
+                                                                                                          text-align: center;
+                                                                                                                border-bottom: 1px solid #31503c;
+                                                                                                                    }
+
+                                                                                                                        header h1 {
+                                                                                                                              margin: 0;
+                                                                                                                                    font-size: 24px;
+                                                                                                                                          letter-spacing: 2px;
+                                                                                                                                              }
+
+                                                                                                                                                  header p {
+                                                                                                                                                        margin: 5px 0 0;
+                                                                                                                                                              color: #b7c7bc;
+                                                                                                                                                                    font-size: 13px;
+                                                                                                                                                                        }
+
+                                                                                                                                                                            main {
+                                                                                                                                                                                  max-width: 650px;
+                                                                                                                                                                                        margin: auto;
+                                                                                                                                                                                              padding: 14px;
+                                                                                                                                                                                                  }
+
+                                                                                                                                                                                                      .combatant {
+                                                                                                                                                                                                            background: #17271d;
+                                                                                                                                                                                                                  border: 1px solid #31503c;
+                                                                                                                                                                                                                        border-radius: 15
