@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#1f3a2b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>Ghea Companion</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0d1711;
+      --panel: #17271d;
+      --panel2: #203528;
+      --border: #31503c;
+      --text: #f3f3f3;
+      --muted: #9fb0a5;
+
+      --ally: #315b40;
+      --ally-soft: #203d2b;
+
+      --enemy: #6a3333;
+      --enemy-soft: #3b2424;
+
+      --gold: #c6a862;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    header {
+      height: 54px;
+      background: #14251b;
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 2px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .reset-button {
+      border: 1px solid #714343;
+      background: #432525;
+      color: #ffdede;
+
+      border-radius: 9px;
+      padding: 8px 12px;
+
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+
+      margin: auto;
+      padding: 10px;
+    }
+
+    .battlefield {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 10px;
+
+      align-items: stretch;
+    }
+
+    .team {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+
+      padding: 9px;
+      background: #121f17;
+    }
+
+    .team-header {
+      height: 32px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .allies .team-header {
+      color: #bde4c7;
+    }
+
+    .enemies .team-header {
+      color: #efb8b8;
+    }
+
+    .formation-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 6px;
+      margin-bottom: 5px;
+
+      text-align: center;
+      font-size: 9px;
+      color: var(--muted);
+
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .formation {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(76px, 1fr));
+
+      gap: 6px;
+    }
+
+    .slot {
+      min-height: 76px;
+
+      border: 1px dashed #405448;
+      border-radius: 10px;
+
+      background: #101c15;
+      color: var(--text);
+
+      padding: 5px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slot.empty {
+      opacity: 0.55;
+    }
+
+    .slot.empty::after {
+      content: "+";
+      font-size: 24px;
+      color: #71877a;
+      font-weight: bold;
+    }
+
+    .slot.occupied {
+      opacity: 1;
+      border-style: solid;
+    }
+
+    .allies .slot.occupied {
+      background: var(--ally-soft);
+      border-color: #4d765a;
+    }
+
+    .enemies .slot.occupied {
+      background: var(--enemy-soft);
+      border-color: #754848;
+    }
+
+    .slot.move-target {
+      border: 2px solid var(--gold);
+      opacity: 1;
+      background: #302b1b;
+    }
+
+    .slot.move-target::after {
+      content: "↔";
+      color: #e1c675;
+    }
+
+    .fighter {
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 3px;
+      text-align: center;
+    }
+
+    .fighter-icon {
+      font-size: 18px;
+      line-height: 18px;
+    }
+
+    .fighter-name {
+      width: 100%;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .fighter-stats {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .fighter-statuses {
+      min-height: 14px;
+
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .versus {
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 4px;
+
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .versus .swords {
+      font-size: 27px;
+    }
+
+    .versus .vs {
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .move-message {
+      display: none;
+
+      margin-top: 9px;
+      padding: 9px;
+
+      border: 1px solid #756638;
+      border-radius: 10px;
+
+      background: #302b1b;
+      color: #ead68f;
+
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .move-message.show {
+      display: block;
+    }
+
+    .cancel-move {
+      margin-left: 8px;
+
+      border: none;
+      border-radius: 6px;
+
+      padding: 5px 8px;
+
+      background: #665830;
+      color: white;
+
+      font-weight: bold;
+    }
+
+    .tip {
+      margin-top: 8px;
+
+      color: #718178;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      padding: 14px;
+
+      background: rgba(0, 0, 0, 0.72);
+
+      z-index: 100;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .editor {
+      width: min(520px, 100%);
+      max-height: 95vh;
+
+      overflow-y: auto;
+
+      background: #16251b;
+      border: 1px solid #49604f;
+      border-radius: 16px;
+
+      padding: 14px;
+    }
+
+    .editor-top {
+      display: flex;
+      gap: 8px;
+
+      align-items: center;
+
+      margin-bottom: 12px;
+    }
+
+    .editor-icon {
+      font-size: 22px;
+    }
+
+    .name-input {
+      flex: 1;
+      min-width: 0;
+
+      border: none;
+      border-bottom: 1px solid #5c7563;
+
+      background: transparent;
+      color: white;
+
+      font-size: 20px;
+      font-weight: bold;
+
+      padding: 6px;
+    }
+
+    .close-button {
+      width: 38px;
+      height: 38px;
+
+      border: none;
+      border-radius: 9px;
+
+      background: #304438;
+      color: white;
+
+      font-size: 20px;
+    }
+
+    .main-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 9px;
+    }
+
+    .stat {
+      background: var(--panel2);
+      border-radius: 11px;
+
+      padding: 9px 4px;
+      text-align: center;
+    }
+
+    .stat-title {
+      margin-bottom: 7px;
+
+      color: #c8d3cb;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .counter {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 7px;
+    }
+
+    .counter button {
+      width: 40px;
+      height: 40px;
+
+      border: none;
+      border-radius: 8px;
+
+      background: #355843;
+      color: white;
+
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .counter-value {
+      min-width: 34px;
+
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .states-title {
+      margin: 12px 0 6px;
+
+      color: var(--muted);
+
+      font-size: 10px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .states {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+
+      gap: 6px;
+    }
+
+    .state {
+      border: 1px solid #31463a;
+      border-radius: 9px;
+
+      padding: 7px 2px;
+
+      text-align: center;
+      opacity: 0.48;
+    }
+
+    .state.active {
+      opacity: 1;
+      background: #203528;
+      border-color: #607b68;
+    }
+
+    .state-name {
+      margin-bottom: 5px;
+      font-size: 10px;
+    }
+
+    .state-counter {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      gap: 3px;
+    }
+
+    .state-counter button {
+      width: 29px;
+      height: 29px;
+
+      border: none;
+      border-radius: 6px;
+
+      background: #304d3a;
+      color: white;
+
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .state-value {
+      min-width: 19px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .editor-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .move-button,
+    .delete-button {
+      border: none;
+      border-radius: 10px;
+
+      padding: 11px 8px;
+
+      color: white;
+      font-weight: bold;
+    }
+
+    .move-button {
+      background: #655a31;
+    }
+
+    .delete-button {
+      background: #5a2929;
+    }
+
+    @media (max-width: 700px) and (orientation: portrait) {
+      header {
+        height: auto;
+        min-height: 52px;
+      }
+
+      .brand span {
+        display: none;
+      }
+
+      main {
+        padding: 7px;
+      }
+
+      .battlefield {
+        grid-template-columns: 1fr 34px 1fr;
+        gap: 4px;
+      }
+
+      .team {
+        padding: 5px;
+      }
+
+      .formation {
+        gap: 4px;
+        grid-template-rows: repeat(3, 82px);
+      }
+
+      .slot {
+        min-height: 82px;
+        padding: 3px;
+      }
+
+      .fighter-name {
+        font-size: 10px;
+      }
+
+      .fighter-stats {
+        flex-direction: column;
+        gap: 0;
+        font-size: 10px;
+      }
+
+      .formation-labels {
+        font-size: 7px;
+      }
+
+      .team-header {
+        font-size: 11px;
+      }
+
+      .versus .swords {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <h1>GHEA</h1>
+    <span>Campo de combate</span>
+  </div>
+
+  <button class="reset-button" id="resetBtn">
+    Nueva partida
+  </button>
+</header>
+
+<main>
+
+  <div class="battlefield">
+
+    <section class="team allies">
+
+      <div class="team-header">
+        🛡️ ALIADOS
+      </div>
+
+      <div class="formation-labels">
+        <span>Retaguardia</span>
+        <span>Vanguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="allyFormation"
+      ></div>
+
+    </section>
+
+    <div class="versus">
+      <div class="swords">⚔️</div>
+      <div class="vs">VS</div>
+    </div>
+
+    <section class="team enemies">
+
+      <div class="team-header">
+        ENEMIGOS 👹
+      </div>
+
+      <div class="formation-labels">
+        <span>Vanguardia</span>
+        <span>Retaguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="enemyFormation"
+      ></div>
+
+    </section>
+
+  </div>
+
+  <div
+    class="move-message"
+    id="moveMessage"
+  >
+    Elegí una casilla libre para mover la ficha.
+
+    <button
+      class="cancel-move"
+      id="cancelMoveBtn"
+    >
+      Cancelar
+    </button>
+  </div>
+
+  <div class="tip">
+    Tocá una casilla vacía para agregar.
+    Tocá una ficha para editarla.
+  </div>
+
+</main>
+
+
+<div
+  class="overlay"
+  id="overlay"
+>
+
+  <div class="editor">
+
+    <div class="editor-top">
+
+      <div
+        class="editor-icon"
+        id="editorIcon"
+      >
+        🛡️
+      </div>
+
+      <input
+        class="name-input"
+        id="nameInput"
+        type="text"
+        value="Nombre"
+        aria-label="Nombre"
+      >
+
+      <button
+        class="close-button"
+        id="closeBtn"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="main-stats">
+
+      <div class="stat">
+
+        <div class="stat-title">
+          ❤️ VIDA
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="vidaValue"
+          >
+            10
+          </span>
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-title">
+          🛡️ ESCUDO
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="escudoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="states-title">
+      ESTADOS
+    </div>
+
+    <div class="states">
+
+      <div
+        class="state"
+        id="quemaduraBox"
+      >
+
+        <div class="state-name">
+          🔥 Quemadura
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="quemaduraValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="venenoBox"
+      >
+
+        <div class="state-name">
+          ☠️ Veneno
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="venenoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="heridaBox"
+      >
+
+        <div class="state-name">
+          🩸 Herida
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="heridaValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="editor-actions">
+
+      <button
+        class="move-button"
+        id="moveBtn"
+      >
+        ↔️ Mover
+      </button>
+
+      <button
+        class="delete-button"
+        id="deleteBtn"
+      >
+        🗑️ Eliminar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const STORAGE_KEY = "ghea-state-v3";
+
+const allyFormation =
+  document.getElementById("allyFormation");
+
+const enemyFormation =
+  document.getElementById("enemyFormation");
+
+const overlay =
+  document.getElementById("overlay");
+
+const nameInput =
+  document.getElementById("nameInput");
+
+const editorIcon =
+  document.getElementById("editorIcon");
+
+const moveMessage =
+  document.getElementById("moveMessage");
+
+
+function createFighter(side) {
+  return {
+    side: side,
+    name: side === "ally"
+      ? "Nombre"
+      : "Enemigo",
+
+    vida: 10,
+    escudo: 0,
+
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
+  };
+}
+
+
+function createInitialState() {
+
+  const allies =
+    Array(6).fill(null);
+
+  const enemies =
+    Array(6).fill(null);
+
+  allies[1] =
+    createFighter("ally");
+
+  allies[3] =
+    createFighter("ally");
+
+  return {
+    allies: allies,
+    enemies: enemies
+  };
+}
+
+
+let gameState;
+
+try {
+
+  const stored =
+    JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    );
+
+  if (
+    stored &&
+    Array.isArray(stored.allies) &&
+    Array.isArray(stored.enemies) &&
+    stored.allies.length === 6 &&
+    stored.enemies.length === 6
+  ) {
+    gameState = stored;
+  } else {
+    gameState =
+      createInitialState();
+  }
+
+} catch (error) {
+
+  gameState =
+    createInitialState();
+
+}
+
+
+let selectedSide = null;
+let selectedSlot = null;
+
+let moveMode = false;
+let movingSide = null;
+let movingSlot = null;
+
+
+function save() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(gameState)
+  );
+
+}
+
+
+function getTeam(side) {
+
+  return side === "ally"
+    ? gameState.allies
+    : gameState.enemies;
+
+}
+
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function getStatuses(fighter) {
+
+  let statuses = "";
+
+  if (fighter.quemadura > 0) {
+    statuses += "🔥";
+  }
+
+  if (fighter.veneno > 0) {
+    statuses += "☠️";
+  }
+
+  if (fighter.herida > 0) {
+    statuses += "🩸";
+  }
+
+  return statuses;
+
+}
+
+
+function renderFormation(
+  side,
+  element
+) {
+
+  const team =
+    getTeam(side);
+
+  element.innerHTML = "";
+
+  team.forEach(
+    function(fighter, index) {
+
+      const slot =
+        document.createElement("button");
+
+      slot.className = "slot";
+
+      slot.dataset.side = side;
+      slot.dataset.slot = index;
+
+
+      if (fighter) {
+
+        slot.classList.add(
+          "occupied"
+        );
+
+        const icon =
+          side === "ally"
+            ? "🛡️"
+            : "👹";
+
+        slot.innerHTML = `
+          <div class="fighter">
+
+            <div class="fighter-icon">
+              ${icon}
+            </div>
+
+            <div class="fighter-name">
+              ${escapeHtml(fighter.name)}
+            </div>
+
+            <div class="fighter-stats">
+              <span>❤️ ${fighter.vida}</span>
+              <span>🛡️ ${fighter.escudo}</span>
+            </div>
+
+            <div class="fighter-statuses">
+              ${getStatuses(fighter)}
+            </div>
+
+          </div>
+        `;
+
+      } else {
+
+        slot.classList.add(
+          "empty"
+        );
+
+        if (
+          moveMode &&
+          side === movingSide
+        ) {
+
+          slot.classList.add(
+            "move-target"
+          );
+
+        }
+
+      }
+
+      element.appendChild(slot);
+
+    }
+  );
+
+}
+
+
+function render() {
+
+  renderFormation(
+    "ally",
+    allyFormation
+  );
+
+  renderFormation(
+    "enemy",
+    enemyFormation
+  );
+
+
+  if (moveMode) {
+
+    moveMessage.classList.add(
+      "show"
+    );
+
+  } else {
+
+    moveMessage.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+function openEditor(
+  side,
+  slot
+) {
+
+  const fighter =
+    getTeam(side)[slot];
+
+  if (!fighter) {
+    return;
+  }
+
+  selectedSide = side;
+  selectedSlot = slot;
+
+  editorIcon.textContent =
+    side === "ally"
+      ? "🛡️"
+      : "👹";
+
+  nameInput.value =
+    fighter.name;
+
+  updateEditor();
+
+  overlay.classList.add(
+    "show"
+  );
+
+}
+
+
+function closeEditor() {
+
+  overlay.classList.remove(
+    "show"
+  );
+
+  selectedSide = null;
+  selectedSlot = null;
+
+}
+
+
+function updateEditor() {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  if (!fighter) {
+    return;
+  }
+
+
+  document.getElementById(
+    "vidaValue"
+  ).textContent =
+    fighter.vida;
+
+
+  document.getElementById(
+    "escudoValue"
+  ).textContent =
+    fighter.escudo;
+
+
+  document.getElementById(
+    "quemaduraValue"
+  ).textContent =
+    fighter.quemadura;
+
+
+  document.getElementById(
+    "venenoValue"
+  ).textContent =
+    fighter.veneno;
+
+
+  document.getElementById(
+    "heridaValue"
+  ).textContent =
+    fighter.herida;
+
+
+  document.getElementById(
+    "quemaduraBox"
+  ).classList.toggle(
+    "active",
+    fighter.quemadura > 0
+  );
+
+
+  document.getElementById(
+    "venenoBox"
+  ).classList.toggle(
+    "active",
+    fighter.veneno > 0
+  );
+
+
+  document.getElementById(
+    "heridaBox"
+  ).classList.toggle(
+    "active",
+    fighter.herida > 0
+  );
+
+}
+
+
+function changeStat(
+  stat,
+  amount
+) {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  fighter[stat] =
+    Math.max(
+      0,
+      Number(fighter[stat] || 0)
+        + amount
+    );
+
+  save();
+  updateEditor();
+  render();
+
+}
+
+
+function handleSlotClick(event) {
+
+  const slot =
+    event.target.closest(".slot");
+
+  if (!slot) {
+    return;
+  }
+
+  const side =
+    slot.dataset.side;
+
+  const index =
+    Number(slot.dataset.slot);
+
+  const team =
+    getTeam(side);
+
+  const fighter =
+    team[index];
+
+
+  if (moveMode) {
+
+    if (
+      side === movingSide &&
+      fighter === null
+    ) {
+
+      const movingTeam =
+        getTeam(movingSide);
+
+      movingTeam[index] =
+        movingTeam[movingSlot];
+
+      movingTeam[movingSlot] =
+        null;
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      save();
+      render();
+
+    }
+
+    return;
+  }
+
+
+  if (fighter) {
+
+    openEditor(
+      side,
+      index
+    );
+
+    return;
+  }
+
+
+  team[index] =
+    createFighter(side);
+
+  save();
+  render();
+
+  openEditor(
+    side,
+    index
+  );
+
+}
+
+
+allyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+enemyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+document
+  .querySelectorAll(
+    "[data-editor-stat]"
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          const stat =
+            button.dataset.editorStat;
+
+          const amount =
+            Number(
+              button.dataset.editorAmount
+            );
+
+          changeStat(
+            stat,
+            amount
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+nameInput.addEventListener(
+  "input",
+  function() {
+
+    if (
+      selectedSide === null ||
+      selectedSlot === null
+    ) {
+      return;
+    }
+
+    const fighter =
+      getTeam(selectedSide)[selectedSlot];
+
+    fighter.name =
+      nameInput.value;
+
+    save();
+    render();
+
+  }
+);
+
+
+document
+  .getElementById("closeBtn")
+  .addEventListener(
+    "click",
+    closeEditor
+  );
+
+
+document
+  .getElementById("deleteBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      const team =
+        getTeam(selectedSide);
+
+      team[selectedSlot] =
+        null;
+
+      save();
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("moveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      movingSide =
+        selectedSide;
+
+      movingSlot =
+        selectedSlot;
+
+      moveMode = true;
+
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("cancelMoveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("resetBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      const confirmed =
+        confirm(
+          "¿Iniciar una nueva partida?"
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      gameState =
+        createInitialState();
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      closeEditor();
+
+      save();
+      render();
+
+    }
+  );
+
+
+overlay.addEventListener(
+  "click",
+  function(event) {
+
+    if (event.target === overlay) {
+      closeEditor();
+    }
+
+  }
+);
+
+
+render();
+
+
+if ("serviceWorker" in navigator) {
+
+  window.addEventListener(
+    "load",
+    function() {
+
+      navigator.serviceWorker.register(
+        "./sw.js"
+      );
+
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>
