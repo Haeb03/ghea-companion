@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#1f3a2b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>Ghea Companion</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <style>
+*{box-sizing:border-box}
+:root{--gold:#c7a45b;--text:#f3ead4;--muted:#b5aa8c}
+html,body{margin:0;min-height:100%;background:#070a07}
+body{
+ margin:0;min-height:100vh;color:var(--text);font-family:Georgia,"Times New Roman",serif;overflow-x:hidden;
+ background:
+ linear-gradient(90deg,rgba(5,24,10,.72) 0 36%,rgba(8,9,7,.12) 45% 55%,rgba(38,8,7,.70) 64% 100%),
+ url("./ghea-battlefield-bg.jpg") center top/cover fixed no-repeat,#080b08
+}
+body:before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+ background:
+ radial-gradient(ellipse at 4% 12%,rgba(54,106,46,.40),transparent 26%),
+ radial-gradient(ellipse at 13% 74%,rgba(21,53,27,.38),transparent 30%),
+ radial-gradient(ellipse at 96% 14%,rgba(129,36,28,.34),transparent 27%),
+ radial-gradient(ellipse at 88% 76%,rgba(55,20,18,.42),transparent 30%);
+}
+button,input{font-family:inherit}button{touch-action:manipulation}
+header{
+ min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:6px 15px;
+ background:linear-gradient(#11150fee,#080a08ee);border-bottom:1px solid #846b3c;
+ box-shadow:0 5px 16px #000c,inset 0 -1px #2b2113
+}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{margin:0;color:#e8d19a;font-size:27px;letter-spacing:6px;text-shadow:0 2px #000,0 0 10px #c0944755}
+.brand span{font-size:10px;color:#a59a7d;text-transform:uppercase;letter-spacing:1.2px}
+.reset-button{
+ border:1px solid #92733e;border-radius:3px;padding:9px 14px;color:#efdbac;font-weight:bold;
+ background:linear-gradient(#332619,#17110c);box-shadow:inset 0 0 0 2px #0c0906,0 2px 7px #000b
+}
+main{
+ width:100%;max-width:1120px;margin:auto;padding:8px;
+ min-height:calc(100vh - 58px);display:flex;flex-direction:column
+}
+.battlefield{
+ display:grid;grid-template-columns:1fr 68px 1fr;gap:8px;align-items:stretch;
+ flex:1;min-height:0
+}
+.team{
+ position:relative;padding:8px;border:1px solid #665536;border-radius:3px;
+ background:rgba(7,11,8,.62);box-shadow:inset 0 0 24px #000a,0 4px 12px #0009;
+ display:flex;flex-direction:column
+}
+.team:before{content:"";position:absolute;inset:4px;border:1px solid #8b74452b;pointer-events:none}
+.allies{border-color:#57773d;background:linear-gradient(rgba(8,20,10,.68),rgba(7,12,8,.72))}
+.enemies{border-color:#7c392f;background:linear-gradient(rgba(25,9,8,.66),rgba(12,8,7,.72))}
+.team-header{
+ height:34px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;
+ letter-spacing:2px;text-shadow:0 2px 2px #000
+}
+.allies .team-header{color:#9fcf6a}.enemies .team-header{color:#df6b5c}
+.formation-labels{
+ display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;text-align:center;
+ font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#c3b796
+}
+.formation-labels span{padding:3px 0 5px;border-bottom:1px solid #96783f66}
+.formation{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));
+ gap:7px;flex:1;min-height:0
+}
+.slot{
+ min-height:96px;padding:5px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+ color:var(--text);border-radius:2px;border:1px solid #66583a;
+ background:
+ radial-gradient(circle at center,rgba(109,94,57,.12) 0 39%,transparent 40%),
+ repeating-radial-gradient(circle at center,transparent 0 29px,rgba(151,127,68,.25) 30px 31px,transparent 32px 38px),
+ linear-gradient(145deg,rgba(22,25,17,.94),rgba(6,9,7,.96));
+ box-shadow:inset 0 0 22px #000d
+}
+.slot:before{
+ content:"";position:absolute;inset:5px;border:1px solid rgba(151,128,70,.22);
+ clip-path:polygon(7% 0,93% 0,100% 7%,100% 93%,93% 100%,7% 100%,0 93%,0 7%);
+ pointer-events:none
+}
+.slot:after{filter:drop-shadow(0 2px 2px #000)}
+.slot.empty{opacity:.84;border-style:dashed}
+.slot.empty:after{
+ content:"+";position:relative;z-index:2;width:42px;height:42px;display:grid;place-items:center;border-radius:50%;
+ font:700 29px Arial,sans-serif;background:#090b08c7;border:1px solid #7d693c;text-shadow:0 2px 3px #000
+}
+.allies .slot{border-color:#4d7136}.allies .slot.empty:after{color:#91b963;border-color:#567a3c}
+.enemies .slot{border-color:#73362e}.enemies .slot.empty:after{color:#c86656;border-color:#7e3b32}
+.slot.occupied{opacity:1;border-style:solid}
+.allies .slot.occupied{
+ border-color:#75a04d;
+ background:
+ radial-gradient(circle at 50% 45%,rgba(88,126,62,.78) 0 24%,rgba(25,43,25,.90) 43%,rgba(8,13,9,.97) 76%),
+ linear-gradient(145deg,#182217,#0a0e0a)
+}
+.enemies .slot.occupied{
+ border-color:#a4493d;
+ background:
+ radial-gradient(circle at 50% 45%,rgba(126,57,46,.80) 0 24%,rgba(48,24,20,.92) 43%,rgba(14,9,8,.98) 76%),
+ linear-gradient(145deg,#211210,#0c0908)
+}
+.slot.move-target{border:2px solid #e1bd64;opacity:1;box-shadow:0 0 16px #d6ad5266,inset 0 0 20px #000}
+.slot.move-target:after{content:"↔";color:#f2d57c}
+.fighter{width:100%;height:100%;position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+.fighter-icon{width:52px;height:59px;font-size:0;filter:drop-shadow(0 4px 3px #000)}
+.fighter-icon:before{
+ content:"";display:block;width:52px;height:59px;clip-path:polygon(50% 0,91% 13%,86% 67%,50% 100%,14% 67%,9% 13%);
+ background:linear-gradient(135deg,#7fa451,#3f632f 46%,#132516 78%);
+ box-shadow:inset 0 0 0 3px #d1b46388,0 0 0 1px #29381f
+}
+.fighter-icon:after{
+ content:"";position:absolute;width:21px;height:34px;margin:-48px 0 0 15px;
+ background:#cdb46399;clip-path:polygon(45% 0,58% 0,58% 40%,100% 54%,58% 59%,58% 100%,45% 100%,45% 59%,0 54%,45% 40%)
+}
+.enemies .fighter-icon:before{background:linear-gradient(135deg,#b25243,#6e2d23 48%,#301411 80%)}
+.enemies .fighter-icon:after{background:#d28b7199}
+.fighter-name{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:bold;color:#f5ecd4;text-shadow:0 2px 2px #000}
+.fighter-stats{display:flex;justify-content:center;gap:9px;padding:3px 8px;border:1px solid #6e5b3555;border-radius:9px;background:#060907d9;font:700 11px Arial,sans-serif}
+.fighter-statuses{min-height:13px;font-size:11px;letter-spacing:2px}
+.versus{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#d6b45e;font-weight:bold;text-shadow:0 2px 3px #000}
+.versus .swords{
+ width:58px;height:58px;display:grid;place-items:center;border-radius:50%;font-size:28px;
+ border:2px ridge #8d733e;background:radial-gradient(circle,#2a2519,#0c0d0a 72%);
+ box-shadow:inset 0 0 13px #000,0 3px 10px #000c
+}
+.versus .vs{font-size:10px;letter-spacing:2px}
+.move-message{display:none;margin-top:8px;padding:8px;border:1px solid #856c39;border-radius:3px;background:#1d180fe8;color:#ead18d;font-size:12px;text-align:center}
+.move-message.show{display:block}.cancel-move{margin-left:8px;border:1px solid #856c39;border-radius:3px;padding:5px 8px;background:#392e1b;color:white;font-weight:bold}
+.tip{margin-top:7px;padding:5px;color:#c0b395;font-size:10px;text-align:center;background:#080b08a8;border-top:1px solid #66543155}
+.overlay{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;padding:8px;background:rgba(0,0,0,.52);backdrop-filter:blur(2px);z-index:100}
+.overlay.show{display:flex}
+.editor{
+ width:min(760px,100%);max-height:74vh;overflow-y:auto;padding:13px;color:#f1e7cf;
+ background:
+ radial-gradient(circle at 6% 0,rgba(78,96,51,.20),transparent 30%),
+ linear-gradient(rgba(18,21,15,.985),rgba(7,10,8,.995));
+ border:1px solid #91743f;border-radius:3px;
+ box-shadow:inset 0 0 0 3px #16110b,inset 0 0 0 4px #5f4b2b,0 10px 35px #000e
+}
+.editor:before{
+ content:"";position:absolute;pointer-events:none
+}
+.editor-top{display:flex;gap:9px;align-items:center;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #705a34}
+.editor-icon{
+ width:48px;height:55px;font-size:0;clip-path:polygon(50% 0,91% 13%,86% 67%,50% 100%,14% 67%,9% 13%);
+ background:linear-gradient(135deg,#709648,#35582c 48%,#142516);box-shadow:inset 0 0 0 3px #d1b46388
+}
+.name-input{flex:1;min-width:0;border:none;border-bottom:1px solid #80683b;background:transparent;color:#f4e8c9;font-size:20px;font-weight:bold;padding:6px}
+.close-button{width:38px;height:38px;border:1px solid #80683b;border-radius:50%;background:#211a10;color:#e7d198;font-size:20px}
+.main-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{padding:8px 4px;text-align:center;border:1px solid #5d4c31;border-radius:3px;background:linear-gradient(#1c2117,#0e120d)}
+.stat-title{margin-bottom:6px;color:#d2b977;font-size:11px;font-weight:bold;letter-spacing:1px}
+.counter{display:flex;align-items:center;justify-content:center;gap:7px}
+.counter button,.state-counter button{border:1px solid #89703e;border-radius:50%;background:linear-gradient(#342a19,#15110c);color:#f0dca6;font-weight:bold}
+.counter button{width:38px;height:38px;font-size:22px}.counter-value{min-width:34px;font-size:23px;font-weight:bold}
+.states-title{margin:10px 0 5px;color:#cdb574;font-size:10px;text-align:center;letter-spacing:2px}
+.states{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.state{border:1px solid #4c402a;border-radius:3px;padding:6px 2px;text-align:center;opacity:.45;background:#0e120d}
+.state.active{opacity:1;background:#1b2116;border-color:#856b3b}.state-name{margin-bottom:4px;font-size:10px}
+.state-counter{display:flex;align-items:center;justify-content:center;gap:3px}.state-counter button{width:28px;height:28px;font-size:17px}.state-value{min-width:19px;font-size:16px;font-weight:bold}
+.editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.move-button,.delete-button{border-radius:3px;padding:10px 8px;color:#efdda8;font-weight:bold;border:1px solid #826a3a;background:linear-gradient(#342a1a,#15110c)}
+.delete-button{color:#ee9589;border-color:#793a32;background:linear-gradient(#39201b,#180e0c)}
+@media(max-width:700px) and (orientation:portrait){
+ header{min-height:52px}.brand span{display:none}.brand h1{font-size:25px}
+ main{min-height:calc(100vh - 52px);padding:5px}
+ .battlefield{grid-template-columns:1fr 37px 1fr;gap:4px;flex:1}
+ .team{padding:5px}
+ .formation{gap:4px;grid-template-rows:repeat(3,minmax(112px,1fr))}
+ .slot{min-height:112px;padding:3px}
+ .fighter-icon{width:39px;height:45px}.fighter-icon:before{width:39px;height:45px}
+ .fighter-icon:after{width:16px;height:26px;margin:-37px 0 0 11px}
+ .fighter-name{font-size:9px}.fighter-stats{flex-direction:column;gap:0;font-size:9px;padding:1px 5px}
+ .formation-labels{font-size:7px}.team-header{font-size:10px}
+ .versus .swords{width:34px;height:34px;font-size:19px}.versus .vs{font-size:8px}
+ .tip{font-size:9px}
+ .editor{max-height:76vh}
+}
+@media(orientation:landscape){
+ header{min-height:47px}
+ main{min-height:calc(100vh - 47px);padding:5px 8px}
+ .formation{grid-template-rows:repeat(3,minmax(82px,1fr))}
+ .slot{min-height:82px}
+ .overlay{align-items:center}.editor{max-height:94vh}
+}
+  
+/* GHEA V5 — acabado visual sobre V4.3, sin tocar mecánicas */
+body{
+ background:
+ linear-gradient(90deg,rgba(3,22,9,.62) 0 35%,rgba(4,7,5,.03) 44% 56%,rgba(38,7,6,.60) 65% 100%),
+ url("./ghea-battlefield-bg.jpg") center top/cover fixed no-repeat,#070a07;
+}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;box-shadow:inset 0 0 80px 22px rgba(0,0,0,.58)}
+.team{border-width:2px;clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px)}
+.team-header:before,.team-header:after{content:"✦";font-size:8px;color:#a88a48;opacity:.75;margin:0 9px}
+.formation-labels span:after{content:"◆";display:block;font-size:6px;line-height:4px;color:#8f7540}
+.slot{border-radius:1px;box-shadow:inset 0 0 25px #000e,0 1px 2px #000}
+.slot.empty{background:radial-gradient(circle at center,transparent 0 25px,rgba(155,129,64,.18) 26px 27px,transparent 28px 34px,rgba(155,129,64,.10) 35px 36px,transparent 37px),linear-gradient(145deg,rgba(21,24,16,.94),rgba(5,8,6,.98))}
+.slot.empty:after{width:46px;height:46px;box-shadow:inset 0 0 10px #000,0 0 0 3px rgba(0,0,0,.28)}
+.fighter-icon{width:58px;height:66px}
+.fighter-icon:before{width:58px;height:66px;clip-path:polygon(50% 0,92% 12%,88% 64%,76% 81%,50% 100%,24% 81%,12% 64%,8% 12%);background:linear-gradient(145deg,rgba(255,255,255,.20),transparent 26%),linear-gradient(135deg,#7da24d,#395c2d 48%,#102114 82%);box-shadow:inset 0 0 0 3px rgba(211,181,99,.62),inset 0 0 14px rgba(0,0,0,.45)}
+.enemies .fighter-icon:before{background:linear-gradient(145deg,rgba(255,255,255,.16),transparent 26%),linear-gradient(135deg,#b95444,#6c2b22 48%,#2b1210 82%)}
+.fighter-icon:after{width:22px;height:36px;margin:-53px 0 0 18px}
+.fighter-name{font-size:12px;letter-spacing:.2px}
+.fighter-stats{border-color:rgba(183,148,72,.30);box-shadow:inset 0 0 6px #000}
+.versus .swords{border:2px ridge #a08245;box-shadow:inset 0 0 16px #000,0 0 0 3px rgba(20,15,8,.65),0 0 15px rgba(181,142,61,.18)}
+.tip{border:1px solid rgba(115,91,48,.35);background:linear-gradient(90deg,transparent,rgba(7,10,7,.88) 12% 88%,transparent);color:#cbbd9c}
+.editor{border:2px ridge #9c7c43;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);background:radial-gradient(circle at 8% 18%,rgba(61,91,44,.22),transparent 27%),radial-gradient(circle at 92% 15%,rgba(109,48,35,.12),transparent 25%),linear-gradient(rgba(19,22,15,.99),rgba(7,9,7,.995))}
+.name-input{text-align:center;color:#ead59d}
+.stat{border-color:#6f5934;box-shadow:inset 0 0 15px #0008}
+@media(max-width:700px) and (orientation:portrait){
+ .fighter-icon{width:43px;height:49px}.fighter-icon:before{width:43px;height:49px}.fighter-icon:after{width:17px;height:28px;margin:-40px 0 0 13px}
+ .formation{grid-template-rows:repeat(3,minmax(116px,1fr))}.slot{min-height:116px}
+}
+
+
+/* ===== GHEA V5.1 — integración tablero/escenario ===== */
+/* Solo estética: bosque aliado, roca/brasas enemiga, placa GHEA y profundidad */
+.allies{
+  position:relative;
+  background:
+    radial-gradient(ellipse at 0% 14%,rgba(83,126,50,.28),transparent 30%),
+    radial-gradient(ellipse at 100% 75%,rgba(43,82,35,.22),transparent 32%),
+    linear-gradient(105deg,rgba(8,31,15,.96),rgba(7,18,10,.89) 72%,rgba(5,12,7,.93));
+  box-shadow:
+    inset 15px 0 26px rgba(32,74,29,.30),
+    inset -5px 0 15px #0008,
+    0 0 18px #0009;
+}
+.allies:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.72;
+  background:
+    radial-gradient(ellipse at 4% 10%,rgba(121,158,72,.26) 0 3%,transparent 4%),
+    radial-gradient(ellipse at 8% 17%,rgba(91,132,59,.23) 0 4%,transparent 5%),
+    radial-gradient(ellipse at 2% 30%,rgba(71,116,51,.20) 0 5%,transparent 6%),
+    radial-gradient(ellipse at 97% 92%,rgba(80,126,55,.16) 0 4%,transparent 5%),
+    repeating-linear-gradient(118deg,transparent 0 31px,rgba(93,119,58,.045) 32px 33px,transparent 34px 58px);
+}
+.enemies{
+  position:relative;
+  background:
+    radial-gradient(circle at 100% 20%,rgba(148,49,33,.24),transparent 27%),
+    radial-gradient(circle at 5% 82%,rgba(103,33,25,.20),transparent 30%),
+    linear-gradient(255deg,rgba(39,9,8,.96),rgba(21,8,8,.91) 72%,rgba(10,7,7,.95));
+  box-shadow:
+    inset -15px 0 26px rgba(107,28,22,.25),
+    inset 5px 0 15px #0008,
+    0 0 18px #0009;
+}
+.enemies:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.68;
+  background:
+    radial-gradient(circle at 96% 12%,rgba(223,83,42,.18) 0 1.5%,transparent 2.5%),
+    radial-gradient(circle at 91% 28%,rgba(196,59,34,.15) 0 1%,transparent 2%),
+    radial-gradient(circle at 98% 58%,rgba(232,72,36,.13) 0 1.2%,transparent 2.2%),
+    repeating-linear-gradient(61deg,transparent 0 38px,rgba(142,61,42,.04) 39px 40px,transparent 41px 66px);
+}
+.team-header,.formation-labels,.formation{position:relative;z-index:1}
+
+/* Bordes que se funden con el escenario */
+.allies{border-color:#668b4a}
+.enemies{border-color:#8f453c}
+.allies .slot{
+  background-color:rgba(5,17,8,.78);
+  border-color:rgba(100,139,70,.58);
+}
+.enemies .slot{
+  background-color:rgba(20,7,7,.80);
+  border-color:rgba(143,67,57,.62);
+}
+.allies .slot:not(.empty){
+  background:
+    radial-gradient(circle at 50% 53%,rgba(72,123,54,.20),transparent 48%),
+    linear-gradient(rgba(8,27,12,.88),rgba(4,12,6,.94));
+}
+.enemies .slot:not(.empty){
+  background:
+    radial-gradient(circle at 50% 53%,rgba(145,48,37,.19),transparent 48%),
+    linear-gradient(rgba(35,10,9,.89),rgba(13,6,6,.95));
+}
+
+/* Cabecera como placa de juego */
+header{
+  background:
+    linear-gradient(180deg,rgba(15,20,13,.98),rgba(5,9,6,.98));
+  box-shadow:inset 0 -9px 20px #0009,0 2px 8px #000;
+}
+.brand{
+  position:relative;padding:3px 18px 4px;
+  border:1px solid rgba(161,126,63,.42);
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);
+  background:linear-gradient(180deg,rgba(59,54,35,.25),rgba(13,16,10,.20));
+  box-shadow:inset 0 0 12px #000;
+}
+.brand:before,.brand:after{
+  content:"◆";color:#9d7c42;font-size:8px;position:absolute;top:50%;transform:translateY(-50%);
+}
+.brand:before{left:6px}.brand:after{right:6px}
+.brand h1{
+  letter-spacing:.22em;
+  color:#f0ddb0;
+  text-shadow:0 2px 1px #000,0 0 9px rgba(190,150,71,.38);
+}
+
+/* Centro: el camino queda protagonista, sin convertirlo en otra columna de UI */
+.versus{
+  background:linear-gradient(90deg,rgba(0,0,0,.20),transparent 25% 75%,rgba(0,0,0,.20));
+}
+.versus:before{
+  content:"";position:absolute;top:8%;bottom:8%;left:50%;width:1px;transform:translateX(-50%);
+  background:linear-gradient(transparent,rgba(190,157,86,.13),transparent);
+}
+.versus .swords{
+  backdrop-filter:blur(1px);
+  background:radial-gradient(circle,rgba(12,16,11,.92),rgba(5,7,5,.96));
+}
+
+/* Escudos con sensación de metal/heráldica */
+.allies .fighter-icon:before{
+  filter:drop-shadow(0 4px 5px #000);
+  background:
+    linear-gradient(155deg,rgba(245,220,143,.25),transparent 20%),
+    linear-gradient(110deg,#779b4b 0 34%,#456a35 35% 66%,#1c3823 67% 100%);
+}
+.enemies .fighter-icon:before{
+  filter:drop-shadow(0 4px 5px #000);
+  background:
+    linear-gradient(155deg,rgba(245,205,143,.20),transparent 20%),
+    linear-gradient(110deg,#a84e3f 0 34%,#743126 35% 66%,#391815 67% 100%);
+}
+.fighter-icon:after{filter:drop-shadow(0 1px 1px #000)}
+
+/* Un poco más de profundidad sin cambiar tamaños */
+.fighter-name{text-shadow:0 2px 2px #000,0 0 5px #000}
+.fighter-stats{background:rgba(3,6,4,.84)}
+.slot.empty{opacity:.92}
+.slot.empty:hover{opacity:1}
+
+/* Panel inferior como pieza física del mismo tablero */
+.editor{
+  box-shadow:0 -7px 24px #000b,inset 0 0 24px rgba(130,103,54,.08);
+}
+.editor:before{
+  content:"";position:absolute;inset:5px;pointer-events:none;
+  border:1px solid rgba(171,136,68,.18);
+  clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px);
+}
+
+
+/* ===== GHEA V5.2 — integración con escenario ilustrado real ===== */
+body{
+  background:
+    linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.17)),
+    url("./ghea-stage-v2.webp") center top/cover fixed no-repeat,#050705 !important;
+}
+body:after{
+  background:linear-gradient(90deg,rgba(0,12,3,.14),transparent 42% 58%,rgba(26,3,2,.15)) !important;
+}
+
+/* Los paneles dejan ver el arte real de fondo. */
+.allies{
+  background:linear-gradient(90deg,rgba(4,24,8,.74),rgba(3,13,6,.80)) !important;
+  backdrop-filter:blur(.35px);
+}
+.enemies{
+  background:linear-gradient(270deg,rgba(36,6,5,.75),rgba(16,5,5,.81)) !important;
+  backdrop-filter:blur(.35px);
+}
+.allies:before,.enemies:before{opacity:.28 !important}
+
+/* Casillas semitransparentes: siguen siendo HTML real, pero el mundo aparece debajo. */
+.allies .slot,
+.allies .slot:not(.empty){
+  background:linear-gradient(rgba(4,20,8,.68),rgba(3,12,5,.76)) !important;
+}
+.enemies .slot,
+.enemies .slot:not(.empty){
+  background:linear-gradient(rgba(28,7,6,.68),rgba(12,4,4,.77)) !important;
+}
+.slot.empty{
+  background-color:transparent !important;
+}
+.slot:before{
+  background:transparent !important;
+}
+
+/* Más sensación de marco físico sin cambiar medidas. */
+.team{
+  box-shadow:0 4px 15px #000d,inset 0 0 18px #0007 !important;
+}
+.allies{
+  border-color:#7e9f52 !important;
+  box-shadow:0 4px 15px #000d,inset 10px 0 22px rgba(68,115,43,.20) !important;
+}
+.enemies{
+  border-color:#9a493c !important;
+  box-shadow:0 4px 15px #000d,inset -10px 0 22px rgba(135,42,31,.20) !important;
+}
+.allies .slot{border-color:rgba(151,184,92,.68) !important}
+.enemies .slot{border-color:rgba(189,86,68,.69) !important}
+
+/* Cabecera y centro conservan proporciones de V5.1. */
+header{
+  background:linear-gradient(rgba(8,12,8,.97),rgba(5,8,5,.96)) !important;
+}
+.versus{
+  background:transparent !important;
+}
+.versus:before{
+  opacity:.35;
+}
+.tip{
+  background:rgba(8,9,6,.84) !important;
+  backdrop-filter:blur(2px);
+}
+
+
+/* ===== GHEA V5.4 — más escenario visible ===== */
+/* Reducimos los dos paneles sin tocar el sendero ni la lógica. */
+.battlefield{
+  grid-template-columns:minmax(0,.88fr) 37px minmax(0,.88fr) !important;
+  column-gap:12px !important;
+  padding-left:12px !important;
+  padding-right:12px !important;
+}
+.team{
+  width:100% !important;
+  justify-self:center !important;
+}
+.allies{margin-left:0 !important}
+.enemies{margin-right:0 !important}
+
+/* Un poco más de aire alrededor del tablero, como en la referencia. */
+@media(max-width:700px) and (orientation:portrait){
+  .battlefield{
+    grid-template-columns:minmax(0,.86fr) 37px minmax(0,.86fr) !important;
+    column-gap:10px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .team-header{padding-left:2px;padding-right:2px}
+  .formation-labels{font-size:10px}
+}
+
+/* En pantallas muy angostas, priorizar que jamás haya desborde horizontal. */
+@media(max-width:390px){
+  .battlefield{
+    grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr) !important;
+    column-gap:7px !important;
+    padding-left:7px !important;
+    padding-right:7px !important;
+  }
+}
+
+
+/* GHEA V5.5 — conservar paneles V5.4 y ajustar solo tipografia */
+@media(max-width:700px) and (orientation:portrait){
+ .formation-labels{font-size:8.5px!important;letter-spacing:.01em!important;gap:1px!important}
+ .formation-labels span{white-space:nowrap!important}
+ .fighter-name{font-size:11px!important;letter-spacing:0!important;max-width:100%!important}
+ .team-header{font-size:13px!important;letter-spacing:.11em!important}
+}
+@media(max-width:390px){
+ .formation-labels{font-size:8px!important}
+ .fighter-name{font-size:10.5px!important}
+}
+
+
+/* ===== GHEA V5.7 — ASSETS SVG REALES ===== */
+/* Proporciones y lógica de V5.5 intactas. */
+.team{position:relative!important}
+.team::after{
+ content:"";position:absolute;inset:-5px;z-index:4;pointer-events:none;
+ background:center/100% 100% no-repeat;
+}
+.allies::after{background-image:url("./frame-allies.svg")}
+.enemies::after{background-image:url("./frame-enemies.svg")}
+
+.slot{position:relative!important}
+.slot::before{
+ content:""!important;position:absolute!important;inset:0!important;z-index:2!important;
+ pointer-events:none!important;border:0!important;
+ background:url("./frame-slot.svg") center/100% 100% no-repeat!important;
+ opacity:.78!important;
+}
+.enemies .slot::before{filter:sepia(.35) saturate(1.7) hue-rotate(325deg) brightness(.8)}
+.allies .slot::before{filter:sepia(.25) saturate(1.25) hue-rotate(28deg)}
+
+.fighter-icon:before{
+ clip-path:none!important;border:0!important;box-shadow:none!important;
+ background:center/contain no-repeat!important;
+ filter:drop-shadow(0 5px 4px rgba(0,0,0,.75));
+}
+.allies .fighter-icon:before{background-image:url("./shield-allies.svg")!important}
+.enemies .fighter-icon:before{background-image:url("./shield-enemies.svg")!important}
+.fighter-icon:after{z-index:3!important}
+
+/* Que los SVG decoren, sin ocupar ni un pixel adicional del layout. */
+.team-header,.formation-labels,.formation{position:relative;z-index:5}
+.fighter-name,.fighter-stats,.status-row{position:relative;z-index:3}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <h1>GHEA</h1>
+    <span>Campo de batalla</span>
+  </div>
+
+  <button class="reset-button" id="resetBtn">
+    Nueva partida
+  </button>
+</header>
+
+<main>
+
+  <div class="battlefield">
+
+    <section class="team allies">
+
+      <div class="team-header">
+        🛡️ ALIADOS
+      </div>
+
+      <div class="formation-labels">
+        <span>Retaguardia</span>
+        <span>Vanguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="allyFormation"
+      ></div>
+
+    </section>
+
+    <div class="versus">
+      <div class="swords">⚔️</div>
+      <div class="vs">VS</div>
+    </div>
+
+    <section class="team enemies">
+
+      <div class="team-header">
+        🛡️ ENEMIGOS
+      </div>
+
+      <div class="formation-labels">
+        <span>Vanguardia</span>
+        <span>Retaguardia</span>
+      </div>
+
+      <div
+        class="formation"
+        id="enemyFormation"
+      ></div>
+
+    </section>
+
+  </div>
+
+  <div
+    class="move-message"
+    id="moveMessage"
+  >
+    Elegí una casilla libre para mover la ficha.
+
+    <button
+      class="cancel-move"
+      id="cancelMoveBtn"
+    >
+      Cancelar
+    </button>
+  </div>
+
+  <div class="tip">
+    Tocá una casilla vacía para agregar.
+    Tocá una ficha para editarla.
+  </div>
+
+</main>
+
+
+<div
+  class="overlay"
+  id="overlay"
+>
+
+  <div class="editor">
+
+    <div class="editor-top">
+
+      <div
+        class="editor-icon"
+        id="editorIcon"
+      >
+        🛡️
+      </div>
+
+      <input
+        class="name-input"
+        id="nameInput"
+        type="text"
+        value="Nombre"
+        aria-label="Nombre"
+      >
+
+      <button
+        class="close-button"
+        id="closeBtn"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="main-stats">
+
+      <div class="stat">
+
+        <div class="stat-title">
+          ❤️ VIDA
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="vidaValue"
+          >
+            10
+          </span>
+
+          <button
+            data-editor-stat="vida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-title">
+          🛡️ ESCUDO
+        </div>
+
+        <div class="counter">
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="counter-value"
+            id="escudoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="escudo"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="states-title">
+      ESTADOS
+    </div>
+
+    <div class="states">
+
+      <div
+        class="state"
+        id="quemaduraBox"
+      >
+
+        <div class="state-name">
+          🔥 Quemadura
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="quemaduraValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="quemadura"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="venenoBox"
+      >
+
+        <div class="state-name">
+          ☠️ Veneno
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="venenoValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="veneno"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="state"
+        id="heridaBox"
+      >
+
+        <div class="state-name">
+          🩸 Herida
+        </div>
+
+        <div class="state-counter">
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="-1"
+          >
+            −
+          </button>
+
+          <span
+            class="state-value"
+            id="heridaValue"
+          >
+            0
+          </span>
+
+          <button
+            data-editor-stat="herida"
+            data-editor-amount="1"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="editor-actions">
+
+      <button
+        class="move-button"
+        id="moveBtn"
+      >
+        ↔️ Mover
+      </button>
+
+      <button
+        class="delete-button"
+        id="deleteBtn"
+      >
+        🗑️ Eliminar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const STORAGE_KEY = "ghea-state-v3";
+
+const allyFormation =
+  document.getElementById("allyFormation");
+
+const enemyFormation =
+  document.getElementById("enemyFormation");
+
+const overlay =
+  document.getElementById("overlay");
+
+const nameInput =
+  document.getElementById("nameInput");
+
+const editorIcon =
+  document.getElementById("editorIcon");
+
+const moveMessage =
+  document.getElementById("moveMessage");
+
+
+function createFighter(side) {
+  return {
+    side: side,
+    name: side === "ally"
+      ? "Nombre"
+      : "Enemigo",
+
+    vida: 10,
+    escudo: 0,
+
+    quemadura: 0,
+    veneno: 0,
+    herida: 0
+  };
+}
+
+
+function createInitialState() {
+
+  const allies =
+    Array(6).fill(null);
+
+  const enemies =
+    Array(6).fill(null);
+
+  allies[1] =
+    createFighter("ally");
+
+  allies[3] =
+    createFighter("ally");
+
+  return {
+    allies: allies,
+    enemies: enemies
+  };
+}
+
+
+let gameState;
+
+try {
+
+  const stored =
+    JSON.parse(
+      localStorage.getItem(STORAGE_KEY)
+    );
+
+  if (
+    stored &&
+    Array.isArray(stored.allies) &&
+    Array.isArray(stored.enemies) &&
+    stored.allies.length === 6 &&
+    stored.enemies.length === 6
+  ) {
+    gameState = stored;
+  } else {
+    gameState =
+      createInitialState();
+  }
+
+} catch (error) {
+
+  gameState =
+    createInitialState();
+
+}
+
+
+let selectedSide = null;
+let selectedSlot = null;
+
+let moveMode = false;
+let movingSide = null;
+let movingSlot = null;
+
+
+function save() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(gameState)
+  );
+
+}
+
+
+function getTeam(side) {
+
+  return side === "ally"
+    ? gameState.allies
+    : gameState.enemies;
+
+}
+
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function getStatuses(fighter) {
+
+  let statuses = "";
+
+  if (fighter.quemadura > 0) {
+    statuses += "🔥";
+  }
+
+  if (fighter.veneno > 0) {
+    statuses += "☠️";
+  }
+
+  if (fighter.herida > 0) {
+    statuses += "🩸";
+  }
+
+  return statuses;
+
+}
+
+
+function renderFormation(
+  side,
+  element
+) {
+
+  const team =
+    getTeam(side);
+
+  element.innerHTML = "";
+
+  team.forEach(
+    function(fighter, index) {
+
+      const slot =
+        document.createElement("button");
+
+      slot.className = "slot";
+
+      slot.dataset.side = side;
+      slot.dataset.slot = index;
+
+
+      if (fighter) {
+
+        slot.classList.add(
+          "occupied"
+        );
+
+        const icon =
+          side === "ally"
+            ? "🛡️"
+            : "👹";
+
+        slot.innerHTML = `
+          <div class="fighter">
+
+            <div class="fighter-icon">
+              ${icon}
+            </div>
+
+            <div class="fighter-name">
+              ${escapeHtml(fighter.name)}
+            </div>
+
+            <div class="fighter-stats">
+              <span>❤️ ${fighter.vida}</span>
+              <span>🛡️ ${fighter.escudo}</span>
+            </div>
+
+            <div class="fighter-statuses">
+              ${getStatuses(fighter)}
+            </div>
+
+          </div>
+        `;
+
+      } else {
+
+        slot.classList.add(
+          "empty"
+        );
+
+        if (
+          moveMode &&
+          side === movingSide
+        ) {
+
+          slot.classList.add(
+            "move-target"
+          );
+
+        }
+
+      }
+
+      element.appendChild(slot);
+
+    }
+  );
+
+}
+
+
+function render() {
+
+  renderFormation(
+    "ally",
+    allyFormation
+  );
+
+  renderFormation(
+    "enemy",
+    enemyFormation
+  );
+
+
+  if (moveMode) {
+
+    moveMessage.classList.add(
+      "show"
+    );
+
+  } else {
+
+    moveMessage.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+function openEditor(
+  side,
+  slot
+) {
+
+  const fighter =
+    getTeam(side)[slot];
+
+  if (!fighter) {
+    return;
+  }
+
+  selectedSide = side;
+  selectedSlot = slot;
+
+  editorIcon.textContent =
+    side === "ally"
+      ? "🛡️"
+      : "👹";
+
+  nameInput.value =
+    fighter.name;
+
+  updateEditor();
+
+  overlay.classList.add(
+    "show"
+  );
+
+}
+
+
+function closeEditor() {
+
+  overlay.classList.remove(
+    "show"
+  );
+
+  selectedSide = null;
+  selectedSlot = null;
+
+}
+
+
+function updateEditor() {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  if (!fighter) {
+    return;
+  }
+
+
+  document.getElementById(
+    "vidaValue"
+  ).textContent =
+    fighter.vida;
+
+
+  document.getElementById(
+    "escudoValue"
+  ).textContent =
+    fighter.escudo;
+
+
+  document.getElementById(
+    "quemaduraValue"
+  ).textContent =
+    fighter.quemadura;
+
+
+  document.getElementById(
+    "venenoValue"
+  ).textContent =
+    fighter.veneno;
+
+
+  document.getElementById(
+    "heridaValue"
+  ).textContent =
+    fighter.herida;
+
+
+  document.getElementById(
+    "quemaduraBox"
+  ).classList.toggle(
+    "active",
+    fighter.quemadura > 0
+  );
+
+
+  document.getElementById(
+    "venenoBox"
+  ).classList.toggle(
+    "active",
+    fighter.veneno > 0
+  );
+
+
+  document.getElementById(
+    "heridaBox"
+  ).classList.toggle(
+    "active",
+    fighter.herida > 0
+  );
+
+}
+
+
+function changeStat(
+  stat,
+  amount
+) {
+
+  if (
+    selectedSide === null ||
+    selectedSlot === null
+  ) {
+    return;
+  }
+
+  const fighter =
+    getTeam(selectedSide)[selectedSlot];
+
+  fighter[stat] =
+    Math.max(
+      0,
+      Number(fighter[stat] || 0)
+        + amount
+    );
+
+  save();
+  updateEditor();
+  render();
+
+}
+
+
+function handleSlotClick(event) {
+
+  const slot =
+    event.target.closest(".slot");
+
+  if (!slot) {
+    return;
+  }
+
+  const side =
+    slot.dataset.side;
+
+  const index =
+    Number(slot.dataset.slot);
+
+  const team =
+    getTeam(side);
+
+  const fighter =
+    team[index];
+
+
+  if (moveMode) {
+
+    if (
+      side === movingSide &&
+      fighter === null
+    ) {
+
+      const movingTeam =
+        getTeam(movingSide);
+
+      movingTeam[index] =
+        movingTeam[movingSlot];
+
+      movingTeam[movingSlot] =
+        null;
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      save();
+      render();
+
+    }
+
+    return;
+  }
+
+
+  if (fighter) {
+
+    openEditor(
+      side,
+      index
+    );
+
+    return;
+  }
+
+
+  team[index] =
+    createFighter(side);
+
+  save();
+  render();
+
+  openEditor(
+    side,
+    index
+  );
+
+}
+
+
+allyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+enemyFormation.addEventListener(
+  "click",
+  handleSlotClick
+);
+
+
+document
+  .querySelectorAll(
+    "[data-editor-stat]"
+  )
+  .forEach(
+    function(button) {
+
+      button.addEventListener(
+        "click",
+        function() {
+
+          const stat =
+            button.dataset.editorStat;
+
+          const amount =
+            Number(
+              button.dataset.editorAmount
+            );
+
+          changeStat(
+            stat,
+            amount
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+nameInput.addEventListener(
+  "input",
+  function() {
+
+    if (
+      selectedSide === null ||
+      selectedSlot === null
+    ) {
+      return;
+    }
+
+    const fighter =
+      getTeam(selectedSide)[selectedSlot];
+
+    fighter.name =
+      nameInput.value;
+
+    save();
+    render();
+
+  }
+);
+
+
+document
+  .getElementById("closeBtn")
+  .addEventListener(
+    "click",
+    closeEditor
+  );
+
+
+document
+  .getElementById("deleteBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      const team =
+        getTeam(selectedSide);
+
+      team[selectedSlot] =
+        null;
+
+      save();
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("moveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        selectedSide === null ||
+        selectedSlot === null
+      ) {
+        return;
+      }
+
+      movingSide =
+        selectedSide;
+
+      movingSlot =
+        selectedSlot;
+
+      moveMode = true;
+
+      closeEditor();
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("cancelMoveBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      render();
+
+    }
+  );
+
+
+document
+  .getElementById("resetBtn")
+  .addEventListener(
+    "click",
+    function() {
+
+      const confirmed =
+        confirm(
+          "¿Iniciar una nueva partida?"
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      gameState =
+        createInitialState();
+
+      moveMode = false;
+      movingSide = null;
+      movingSlot = null;
+
+      closeEditor();
+
+      save();
+      render();
+
+    }
+  );
+
+
+overlay.addEventListener(
+  "click",
+  function(event) {
+
+    if (event.target === overlay) {
+      closeEditor();
+    }
+
+  }
+);
+
+
+render();
+
+
+if ("serviceWorker" in navigator) {
+
+  window.addEventListener(
+    "load",
+    function() {
+
+      navigator.serviceWorker.register(
+        "./sw.js"
+      );
+
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>
