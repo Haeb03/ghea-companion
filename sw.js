@@ -1,4 +1,4 @@
-const CACHE_NAME = "ghea-v5-5-final-1";
+const CACHE_NAME = "ghea-v6-counter-fix-1";
 
 const APP_SHELL = [
   "./",
