@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210">
+<defs>
+ <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#efb46c"/><stop offset=".3" stop-color="#8d4c2c"/><stop offset=".62" stop-color="#c87a42"/><stop offset="1" stop-color="#4a241b"/></linearGradient>
+ <radialGradient id="red" cx=".32" cy=".2" r=".9"><stop stop-color="#d06a51"/><stop offset=".38" stop-color="#8b352d"/><stop offset=".75" stop-color="#481c1c"/><stop offset="1" stop-color="#210d10"/></radialGradient>
+ <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".3"/><stop offset=".3" stop-color="#fff" stop-opacity=".03"/><stop offset=".72" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".48"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-opacity=".85"/></filter>
+</defs>
+<g filter="url(#shadow)">
+ <path d="M90 5 160 27 154 111c-3 39-27 70-64 94-37-24-61-55-64-94L20 27Z" fill="#24100d" stroke="#32130f" stroke-width="10"/>
+ <path d="M90 9 156 30 150 109c-3 36-25 65-60 89-35-24-57-53-60-89L24 30Z" fill="url(#bronze)"/>
+ <path d="M90 20 145 38 140 106c-3 30-20 55-50 77-30-22-47-47-50-77l-5-68Z" fill="url(#red)" stroke="#4b1715" stroke-width="4"/>
+ <path d="M90 20v163" stroke="#d38b57" stroke-opacity=".4" stroke-width="3"/>
+ <path d="M39 48c32-14 70-14 102 0" fill="none" stroke="#e5a46b" stroke-opacity=".28" stroke-width="3"/>
+ <path d="M90 20 145 38 140 106c-3 30-20 55-50 77-30-22-47-47-50-77l-5-68Z" fill="url(#shine)"/>
+ <path d="M90 3 102 17 90 31 78 17Z" fill="#a94a36" stroke="#e7a467" stroke-width="2"/>
+ <path d="M25 37 5 30 18 52 4 62 25 65M155 37l20-7-13 22 14 10-21 3" fill="none" stroke="url(#bronze)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M29 128 8 137 25 148M151 128l21 9-17 11" fill="none" stroke="#91432e" stroke-width="8" stroke-linecap="round"/>
+</g>
+</svg>
